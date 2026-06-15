@@ -62,6 +62,16 @@
         <div class="area-grid" id="welcome-areas"></div>
       </div>
     </div>
+
+    <footer class="page-footer">
+      <span class="page-footer-brand">AIDD Process Next</span>
+      <span class="page-footer-sep">·</span>
+      <span>v0.1 · 検証前ドラフト</span>
+      <span class="page-footer-sep">·</span>
+      <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <span class="page-footer-sep">·</span>
+      <span>ブラウザ完結 · データ外部送信なし</span>
+    </footer>
   </div>
 
   <!-- ── ASSESSMENT ──────────────────────────────────────────────────────── -->
@@ -80,10 +90,27 @@
       <nav class="category-nav" id="category-nav" aria-label="診断カテゴリ"></nav>
       <div class="sidebar-footer">
         <button class="btn btn-primary btn-block" onclick="App.viewResults()">結果を見る</button>
+        <div class="sidebar-meta">
+          <span>v0.1 · 検証前ドラフト</span>
+          <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
       </div>
     </aside>
 
     <main class="assessment-main" id="assessment-main">
+      <div class="assessment-topbar">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+          <span class="breadcrumb-item">AIDD Process Next</span>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-item">診断</span>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-item breadcrumb-current" id="breadcrumb-category">—</span>
+        </nav>
+        <div class="topbar-progress" aria-live="polite">
+          <span id="topbar-answered">0</span> / <span id="topbar-total">50</span> 回答済み
+        </div>
+      </div>
+
       <div class="category-header">
         <span class="category-number" id="cat-number" aria-hidden="true">1</span>
         <div>
@@ -124,13 +151,20 @@
 
   <!-- ── RESULTS ─────────────────────────────────────────────────────────── -->
   <div id="screen-results" class="screen">
-    <header class="results-header">
-      <button class="back-btn" onclick="App.goTo('assessment')" aria-label="診断へ戻る">← 診断へ戻る</button>
-      <div class="results-title-group">
-        <h1>診断結果</h1>
-        <div class="results-actions">
-          <button class="btn btn-primary" onclick="App.goTo('report')">レポートを見る</button>
+    <header class="app-topbar">
+      <div class="app-topbar-left">
+        <div class="app-topbar-brand">
+          <div class="sidebar-brand-mark" aria-hidden="true">A</div>
+          <span class="sidebar-brand-text">AIDD Process Next</span>
         </div>
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+          <button class="breadcrumb-item breadcrumb-link back-btn" onclick="App.goTo('assessment')">診断</button>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-item breadcrumb-current">診断結果</span>
+        </nav>
+      </div>
+      <div class="app-topbar-actions">
+        <button class="btn btn-primary" onclick="App.goTo('report')">レポートを見る</button>
       </div>
     </header>
 
@@ -165,15 +199,24 @@
 
   <!-- ── REPORT ──────────────────────────────────────────────────────────── -->
   <div id="screen-report" class="screen">
-    <header class="report-header">
-      <button class="back-btn" onclick="App.goTo('results')" aria-label="結果へ戻る">← 結果へ戻る</button>
-      <div class="report-title-group">
-        <h1>診断レポート</h1>
-        <div class="report-actions">
-          <button class="btn btn-outline" onclick="App.copyReport()">⧉ Markdownをコピー</button>
-          <span class="copy-feedback" id="report-copy-feedback" aria-live="polite"></span>
-          <button class="btn btn-outline" onclick="window.print()">⎙ 印刷 / PDF</button>
+    <header class="app-topbar">
+      <div class="app-topbar-left">
+        <div class="app-topbar-brand">
+          <div class="sidebar-brand-mark" aria-hidden="true">A</div>
+          <span class="sidebar-brand-text">AIDD Process Next</span>
         </div>
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+          <button class="breadcrumb-item breadcrumb-link back-btn" onclick="App.goTo('assessment')">診断</button>
+          <span class="breadcrumb-sep">›</span>
+          <button class="breadcrumb-item breadcrumb-link back-btn" onclick="App.goTo('results')">診断結果</button>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-item breadcrumb-current">レポート</span>
+        </nav>
+      </div>
+      <div class="app-topbar-actions">
+        <button class="btn btn-outline" onclick="App.copyReport()">⧉ Markdownをコピー</button>
+        <span class="copy-feedback" id="report-copy-feedback" aria-live="polite"></span>
+        <button class="btn btn-outline" onclick="window.print()">⎙ 印刷 / PDF</button>
       </div>
     </header>
 

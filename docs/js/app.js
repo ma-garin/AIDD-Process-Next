@@ -196,6 +196,9 @@ const App = (function () {
 
     setText('cat-number', cat.id);
     setText('cat-title', cat.name);
+    setText('breadcrumb-category', cat.name);
+    setText('topbar-answered', getAnsweredCount(state.answers));
+    setText('topbar-total', QUESTIONS.length);
     setText('q-number', `Q${state.questionIndex + 1} / ${catQs.length}`);
     setText('q-target', targetLabel(q.target));
     document.getElementById('q-target')?.setAttribute('data-target', q.target);

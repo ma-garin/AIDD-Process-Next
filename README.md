@@ -1,162 +1,145 @@
-# AIDD-QMA
+# AIDD Process Next
 
-**AI-Driven Development Quality Maturity Assessment**
+**AI駆動開発 品質成熟度アセスメント**
 
-Version: 0.1 / Research-Gate Draft
+Version: 0.1 / 検証前ドラフト
 
-> This model is provisional. The 300-source evidence review required by `agent.md §5` has not been completed. Scores are indicative, not normative.
-
----
-
-## What v0.1 Does
-
-- 50-question self-assessment across 10 diagnostic areas (human + AI agent + repository)
-- Maturity scoring: Lv.0 Uncontrolled → Lv.3 Optimized
-- Risk identification with severity (Critical / High)
-- Improvement issue drafts
-- AI agent self-check prompts for pre-implementation, pre-PR, and pre-merge phases
-- Markdown report export
-
-## What v0.1 Does Not Do
-
-- No backend, no authentication, no database
-- No AI API calls
-- No normative certification or compliance guarantee
-- No automated repository evidence collection (planned for v0.2)
-- Scoring weights are provisional (equal 10% per category)
+> 本モデルは暫定版です。`agent.md §5`で定義している300件規模の根拠レビューは未完了です。スコアは認証・監査基準ではなく、改善優先度を決めるための参考値として扱ってください。
 
 ---
 
-## Setup
+## 何をするツールか
 
-**Option A — Local server (recommended)**
+AIを使った開発プロセスが、属人的・場当たり的になっていないかを10領域・50問で自己診断します。
+
+主な出力は以下です。
+
+| 出力 | 内容 |
+|---|---|
+| 成熟度スコア | Lv.0 未統制 → Lv.3 最適化 |
+| 優先リスク | スコア0〜1の項目を重大・高で分類 |
+| 改善Issue案 | すぐIssue化できる改善タスク案 |
+| Markdownレポート | 診断結果をそのまま共有できる形式で出力 |
+| AI自己点検プロンプト | 実装前・PR前・マージ前にAIエージェントへ渡す確認プロンプト |
+
+---
+
+## v0.1の対象
+
+- 人間のAI利用ガバナンス
+- AIエージェントへの指示管理
+- 要件・コンテキスト品質
+- AI成果物レビュー
+- テスト・自動化
+- CI/CD・品質ゲート
+- セキュリティ・プライバシー
+- トレーサビリティ
+- エージェント自己監査
+- メトリクス・継続改善
+
+---
+
+## v0.1でやらないこと
+
+- バックエンド、認証、DBはありません
+- AI API呼び出しはありません
+- 入力内容の保存はありません
+- 認証、監査、コンプライアンス保証は行いません
+- リポジトリ証跡の自動収集は未対応です（v0.2以降の候補）
+
+---
+
+## 使い方
+
+### Option A — Node.jsで起動
 
 ```bash
 npm run dev
-# Open http://localhost:3000
+# http://localhost:3000 を開く
 ```
 
-Requires Node.js. Uses `npx serve` (downloaded automatically on first run).
+初回は `npx serve` がダウンロードされます。
 
-**Option B — Python**
+### Option B — Pythonで起動
 
 ```bash
 cd docs
 python3 -m http.server 3000
-# Open http://localhost:3000
+# http://localhost:3000 を開く
 ```
 
-**Option C — Direct file open**
+### Option C — 直接開く
 
-Open `docs/index.html` in a browser by double-clicking.
-All features work without a server. The radar chart is rendered as inline SVG (no CDN required).
-
----
-
-## Data Structure
-
-Questions are defined in `docs/data/questions.js`. Each question follows the schema from `sqec.md §12.2`:
-
-```js
-{
-  id: 'C1-Q1',
-  categoryId: 1,
-  question: '...',
-  target: 'human' | 'ai' | 'repo',
-  choices: [
-    { score: 0, label: 'None',      description: '(BARS level 0)' },
-    { score: 1, label: 'Informal',  description: '(BARS level 1)' },
-    { score: 2, label: 'Defined',   description: '(BARS level 2)' },
-    { score: 3, label: 'Optimized', description: '(BARS level 3)' },
-  ],
-  riskIfLow: '...',
-  recommendation: '...',
-  issueTemplate: '...',
-  aiSelfCheck: '...',
-}
-```
-
-To modify questions, edit `docs/data/questions.js` and reload the browser (TC-009).
+`docs/index.html` をブラウザで開いても利用できます。
+外部CDNは使っていません。レーダーチャートはインラインSVGで描画します。
 
 ---
 
-## Scoring
+## スコアリング
 
-- Each question: 0–3 points
-- Category score: `(sum of answered scores) / (answered count × 3) × 100`
-- Total score: weighted average of category scores (equal weights, provisional)
-- N/A answers are excluded from the denominator
+| スコア | レベル | 状態 |
+|---:|---|---|
+| 75〜100 | Lv.3 最適化 | 指標・証跡・自己監査に基づき継続改善されている |
+| 50〜74 | Lv.2 仕組み化 | ルール、品質ゲート、追跡性が定義されている |
+| 25〜49 | Lv.1 管理開始 | 基本ルールはあるが属人的・不安定 |
+| 0〜24 | Lv.0 未統制 | AI利用が場当たり的でリスクが高い |
 
-| Score | Level |
-|---:|---|
-| 75–100 | Lv.3 Optimized |
-| 50–74  | Lv.2 Systemized |
-| 25–49  | Lv.1 Managed |
-| 0–24   | Lv.0 Uncontrolled |
-
----
-
-## Security / Privacy
-
-- No data is transmitted to external servers
-- Assessment data stays in the browser (no persistence between sessions in v0.1)
-- Do not enter secrets, credentials, or personal information in the project name field
-- All dynamic content in HTML is escaped before rendering (`escapeHtml`)
-- Event handlers use data attributes and event delegation — no inline script in dynamic HTML
-- See `sqec.md §11` for full v0.1 security assumptions
+- 各設問は0〜3点
+- カテゴリスコアは回答済み項目の平均を100点換算
+- 対象外（N/A）は母数から除外
+- v0.1ではカテゴリ重みを均等10%として扱う
 
 ---
 
-## File Structure
+## セキュリティ・プライバシー
 
-```
+- 入力内容は外部送信されません
+- データはブラウザ内で処理され、v0.1では永続保存しません
+- プロジェクト名欄に秘密情報、認証情報、個人情報を入れないでください
+- 動的HTMLは `escapeHtml` でエスケープします
+- 動的要素のイベントはdata属性とイベント委譲で扱い、動的HTML内のinline scriptを避けています
+
+---
+
+## ファイル構成
+
+```text
 docs/
-├── index.html              Main application
+├── index.html              メイン画面
 ├── css/
-│   ├── tokens.css          Design tokens (colors, spacing, typography)
-│   └── style.css           Component styles
+│   ├── tokens.css          色・余白・フォント等のデザイントークン
+│   └── style.css           コンポーネントスタイル
 ├── data/
-│   ├── questions.js        50 questions with BARS descriptions
-│   └── sample-answers.js   Pre-filled sample assessment
+│   ├── questions.js        10領域×5問の診断データ
+│   └── sample-answers.js   サンプル回答
 └── js/
-    ├── scoring.js          Pure scoring functions (no side effects)
-    └── app.js              UI state machine and rendering
-agent.md                    Project operating manual and research gate
-sqec.md                     Acceptance criteria
-615.md                      Improvement proposals (2026-06-15)
+    ├── scoring.js          スコアリング関数
+    └── app.js              UI状態管理・描画
+agent.md                    プロジェクト運営マニュアル
+sqec.md                     受入条件
+615.md                      改善提案メモ
 ```
 
 ---
 
-## Contractor Handover Notes
+## 外部開発者向け注意
 
-External developers must read `agent.md` and `sqec.md` before making changes. Key constraints:
+作業前に `agent.md` と `sqec.md` を読んでください。
 
-- Questions must remain in `docs/data/questions.js`, never hard-coded in UI (`sqec.md §12.1`)
-- Scoring logic is in `docs/js/scoring.js` as pure functions — do not mix with rendering
-- Do not add backend, auth, DB, or AI API without explicit instruction (`agent.md §7`)
-- Do not replace the B2B QA design with consumer AI aesthetics (`sqec.md §10.1`)
-- See `sqec.md §17` for the complete contractor acceptance checklist
-
----
-
-## Known Limitations
-
-- Scoring weights are equal (10% per category) — provisional until evidence review completes
-- No session persistence (answers reset on page refresh)
-- No external JS dependencies; radar chart is SVG-based
-- Model has not been validated against empirical data from real development teams
+- 設問は `docs/data/questions.js` に集約し、UIへ直書きしない
+- スコアリングは `docs/js/scoring.js` に閉じる
+- 明示指示なしにバックエンド、認証、DB、AI APIを追加しない
+- 生成AIサービス風の派手なデザインではなく、日本のB2B業務ツールとして使える落ち着いたUIを維持する
+- `.git`、`.DS_Store`、`.playwright-mcp/`、`__MACOSX/` はコミットしない
 
 ---
 
 ## Research Gate Status
 
-As of v0.1: **Not complete.**
+現時点では未完了です。
 
-Required before model freeze (`agent.md §5`):
-- [ ] 150 TPI / test process improvement sources reviewed
-- [ ] 150 AIDD / AI-assisted development sources reviewed
-- [ ] Evidence matrix (`docs/evidence_matrix_template.csv`) populated
-- [ ] Research brief complete (`docs/research_brief.md`)
+- [ ] TPI / Test Process Improvement 関連150件のレビュー
+- [ ] AIDD / AI-assisted development 関連150件のレビュー
+- [ ] 根拠マトリクスの整備
+- [ ] 調査ブリーフの作成
 
-See `agent.md §6 Phase 1–2` for required deliverables.

@@ -123,11 +123,11 @@ const App = (function () {
     navigator.clipboard.writeText(text).then(() => {
       const el = document.getElementById(feedbackId);
       if (!el) return;
-      el.textContent = 'Copied!';
+      el.textContent = 'コピーしました';
       setTimeout(() => { el.textContent = ''; }, 2000);
     }).catch(() => {
       const el = document.getElementById(feedbackId);
-      if (el) el.textContent = 'Copy failed — select and copy manually.';
+      if (el) el.textContent = 'コピーに失敗しました。手動で選択してコピーしてください。';
     });
   }
 
@@ -196,7 +196,7 @@ const App = (function () {
 
     setText('cat-number', cat.id);
     setText('cat-title', cat.name);
-    setText('q-number', `Q${state.questionIndex + 1} of ${catQs.length}`);
+    setText('q-number', `Q${state.questionIndex + 1} / ${catQs.length}`);
     setText('q-target', targetLabel(q.target));
     document.getElementById('q-target')?.setAttribute('data-target', q.target);
     setText('q-text', q.question);
@@ -205,7 +205,7 @@ const App = (function () {
     const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
     const fill = document.getElementById('cat-progress-fill');
     if (fill) fill.style.width = pct + '%';
-    setText('cat-progress-text', `${answered}/${total} answered`);
+    setText('cat-progress-text', `${answered}/${total} 回答済み`);
 
     const choicesEl = document.getElementById('q-choices');
     if (choicesEl) {
@@ -241,7 +241,7 @@ const App = (function () {
         riskEl.innerHTML = `
           <div class="risk-icon">⚠</div>
           <div>
-            <strong>Risk:</strong> ${escapeHtml(q.riskIfLow)}
+            <strong>リスク:</strong> ${escapeHtml(q.riskIfLow)}
           </div>
         `;
       }
@@ -255,7 +255,7 @@ const App = (function () {
     const nextBtn = document.getElementById('next-btn');
     const isLast = state.categoryIndex === CATEGORIES.length - 1 &&
                    state.questionIndex === catQs.length - 1;
-    if (nextBtn) nextBtn.textContent = isLast ? 'View Results →' : 'Next →';
+    if (nextBtn) nextBtn.textContent = isLast ? '結果を見る →' : '次へ →';
   }
 
   function renderTotalProgress() {
@@ -349,7 +349,7 @@ const App = (function () {
     const el = document.getElementById('risks-list');
     if (!el) return;
     if (risks.length === 0) {
-      el.innerHTML = '<p class="empty-state">✓ No high-risk areas identified.</p>';
+      el.innerHTML = '<p class="empty-state">✓ 優先対応が必要な高リスク項目はありません。</p>';
       return;
     }
     el.innerHTML = risks.slice(0, 8).map(r => {
@@ -357,7 +357,7 @@ const App = (function () {
       return `
         <div class="risk-item severity-${r.severity}">
           <div class="risk-header">
-            <span class="severity-badge ${r.severity}">${r.severity === 'critical' ? '⚠ Critical' : '▲ High'}</span>
+            <span class="severity-badge ${r.severity}">${r.severity === 'critical' ? '重大' : '高'}</span>
             <span class="risk-category">${escapeHtml(catName)}</span>
           </div>
           <p class="risk-question">${escapeHtml(r.question)}</p>
@@ -371,7 +371,7 @@ const App = (function () {
     const el = document.getElementById('issues-list');
     if (!el) return;
     if (issues.length === 0) {
-      el.innerHTML = '<p class="empty-state">No improvement issues generated.</p>';
+      el.innerHTML = '<p class="empty-state">改善Issue案は生成されませんでした。</p>';
       return;
     }
     el.innerHTML = issues.map(issue => `
@@ -434,7 +434,7 @@ const App = (function () {
   }
 
   function targetLabel(target) {
-    return { human: '👤 Human', ai: '🤖 AI Agent', repo: '📁 Repository' }[target] || target;
+    return { human: '人間', ai: 'AIエージェント', repo: 'リポジトリ' }[target] || target;
   }
 
   // ── Event delegation (no inline handlers in dynamic HTML) ─────────────────

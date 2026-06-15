@@ -1,48 +1,49 @@
-/* tokens.css — Design tokens (sqec.md §10.3 semantic color, §12.1 centralized tokens) */
+/* tokens.css — 日本の業務システム向けに、低彩度・高可読性・証跡重視で定義したデザイントークン */
 :root {
-  /* Semantic status colors — triple-encoded with icon + label in components */
-  --color-critical:     #B91C1C;
-  --color-critical-bg:  #FEF2F2;
-  --color-high:         #B45309;
-  --color-high-bg:      #FFFBEB;
-  --color-info:         #1D4ED8;
-  --color-info-bg:      #EFF6FF;
-  --color-ok:           #15803D;
-  --color-ok-bg:        #F0FDF4;
-  --color-neutral:      #475569;
-  --color-neutral-bg:   #F8FAFC;
+  /* Semantic status colors — 色だけに依存しないよう、ラベルと併用する */
+  --color-critical:     #A62121;
+  --color-critical-bg:  #FFF1F1;
+  --color-high:         #9A5B00;
+  --color-high-bg:      #FFF8E8;
+  --color-info:         #1F5C8A;
+  --color-info-bg:      #EEF6FB;
+  --color-ok:           #1E6B4A;
+  --color-ok-bg:        #EDF8F2;
+  --color-neutral:      #5B6472;
+  --color-neutral-bg:   #F6F7F9;
 
   /* Maturity levels */
-  --color-lv0: #B91C1C;
-  --color-lv1: #B45309;
-  --color-lv2: #1D4ED8;
-  --color-lv3: #15803D;
+  --color-lv0: #A62121;
+  --color-lv1: #9A5B00;
+  --color-lv2: #1F5C8A;
+  --color-lv3: #1E6B4A;
 
   /* Surface */
-  --color-bg:           #F8FAFC;
+  --color-bg:           #F4F6F8;
   --color-surface:      #FFFFFF;
-  --color-surface-alt:  #F1F5F9;
-  --color-border:       #E2E8F0;
-  --color-border-focus: #1D4ED8;
+  --color-surface-alt:  #F0F3F6;
+  --color-border:       #D8DEE6;
+  --color-border-focus: #1F5C8A;
 
   /* Text */
-  --color-text:         #0F172A;
-  --color-text-secondary: #475569;
-  --color-text-muted:   #94A3B8;
+  --color-text:         #17202A;
+  --color-text-secondary: #4D5968;
+  --color-text-muted:   #8792A2;
 
   /* Primary action */
-  --color-primary:      #1E3A5F;
-  --color-primary-hover:#1D4ED8;
+  --color-primary:      #15324A;
+  --color-primary-hover:#1F5C8A;
+  --color-accent:       #7A5A20;
 
   /* Score badge backgrounds */
-  --color-score-0: #FEF2F2;
-  --color-score-1: #FFFBEB;
-  --color-score-2: #EFF6FF;
-  --color-score-3: #F0FDF4;
-  --color-score-0-text: #B91C1C;
-  --color-score-1-text: #B45309;
-  --color-score-2-text: #1D4ED8;
-  --color-score-3-text: #15803D;
+  --color-score-0: #FFF1F1;
+  --color-score-1: #FFF8E8;
+  --color-score-2: #EEF6FB;
+  --color-score-3: #EDF8F2;
+  --color-score-0-text: #A62121;
+  --color-score-1-text: #9A5B00;
+  --color-score-2-text: #1F5C8A;
+  --color-score-3-text: #1E6B4A;
 
   /* Spacing */
   --sp-1: 0.25rem;
@@ -56,8 +57,8 @@
   --sp-12: 3rem;
 
   /* Typography */
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', Helvetica, Arial, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+  --font-sans: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', 'Courier New', monospace;
   --text-xs:   0.75rem;
   --text-sm:   0.875rem;
   --text-base: 1rem;
@@ -69,13 +70,13 @@
   /* Borders */
   --radius-sm: 4px;
   --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius-lg: 10px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,.07), 0 2px 4px -1px rgba(0,0,0,.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.08);
+  --shadow-sm: 0 1px 2px rgba(23,32,42,.05);
+  --shadow-md: 0 4px 10px rgba(23,32,42,.07);
+  --shadow-lg: 0 12px 20px rgba(23,32,42,.08);
 
   /* Sidebar */
-  --sidebar-width: 280px;
+  --sidebar-width: 300px;
 }

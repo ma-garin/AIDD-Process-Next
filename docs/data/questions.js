@@ -1,740 +1,1680 @@
-/* questions.js — AIDD-QMA diagnostic questions (10 categories × 5 = 50 questions)
- * Agent.md §8 diagnostic areas. BARS: 0=undefined, 1=informal, 2=defined, 3=optimized.
- * Provisional pending 300-source evidence review (agent.md §5, sqec.md §5).
+/* questions.js — AIDD Process Next diagnostic questions (10 categories × 5 = 50 questions)
+ * BARS: 0=未整備, 1=属人的, 2=定義済み, 3=運用定着。
+ * 本モデルは300件規模の根拠レビュー完了前の検証前ドラフトです。
  */
 
 const CATEGORIES = [
-  { id: 1, key: 'governance',     name: 'AI Usage Governance',              abbr: 'Governance',    weight: 0.10 },
-  { id: 2, key: 'instructions',   name: 'Agent Instruction Management',     abbr: 'Instructions',  weight: 0.10 },
-  { id: 3, key: 'requirements',   name: 'Requirements & Context Quality',   abbr: 'Requirements',  weight: 0.10 },
-  { id: 4, key: 'review',         name: 'AI Artifact Review',               abbr: 'AI Review',     weight: 0.10 },
-  { id: 5, key: 'testing',        name: 'Testing & Automation',             abbr: 'Testing',       weight: 0.10 },
-  { id: 6, key: 'cicd',           name: 'CI/CD & Quality Gates',            abbr: 'CI/CD',         weight: 0.10 },
-  { id: 7, key: 'security',       name: 'Security & Privacy',               abbr: 'Security',      weight: 0.10 },
-  { id: 8, key: 'traceability',   name: 'Traceability',                     abbr: 'Traceability',  weight: 0.10 },
-  { id: 9, key: 'selfaudit',      name: 'Agent Self-Audit',                 abbr: 'Self-Audit',    weight: 0.10 },
-  { id: 10, key: 'metrics',       name: 'Metrics & Continuous Improvement', abbr: 'Metrics',       weight: 0.10 },
+  {
+    "id": 1,
+    "key": "governance",
+    "name": "AI利用ガバナンス",
+    "abbr": "ガバナンス",
+    "weight": 0.1
+  },
+  {
+    "id": 2,
+    "key": "instructions",
+    "name": "エージェント指示管理",
+    "abbr": "指示管理",
+    "weight": 0.1
+  },
+  {
+    "id": 3,
+    "key": "requirements",
+    "name": "要件・コンテキスト品質",
+    "abbr": "要件品質",
+    "weight": 0.1
+  },
+  {
+    "id": 4,
+    "key": "review",
+    "name": "AI成果物レビュー",
+    "abbr": "AIレビュー",
+    "weight": 0.1
+  },
+  {
+    "id": 5,
+    "key": "testing",
+    "name": "テスト・自動化",
+    "abbr": "テスト",
+    "weight": 0.1
+  },
+  {
+    "id": 6,
+    "key": "cicd",
+    "name": "CI/CD・品質ゲート",
+    "abbr": "品質ゲート",
+    "weight": 0.1
+  },
+  {
+    "id": 7,
+    "key": "security",
+    "name": "セキュリティ・プライバシー",
+    "abbr": "セキュリティ",
+    "weight": 0.1
+  },
+  {
+    "id": 8,
+    "key": "traceability",
+    "name": "トレーサビリティ",
+    "abbr": "追跡性",
+    "weight": 0.1
+  },
+  {
+    "id": 9,
+    "key": "selfaudit",
+    "name": "エージェント自己監査",
+    "abbr": "自己監査",
+    "weight": 0.1
+  },
+  {
+    "id": 10,
+    "key": "metrics",
+    "name": "メトリクス・継続改善",
+    "abbr": "継続改善",
+    "weight": 0.1
+  }
 ];
 
 const QUESTIONS = [
-
-  // ── Category 1: AI Usage Governance ───────────────────────────────────────
   {
-    id: 'C1-Q1', categoryId: 1, target: 'human',
-    question: 'Has your team defined and documented a policy governing where and how AI tools may be used in development?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No AI usage policy exists. Each developer uses AI tools arbitrarily with no shared understanding.' },
-      { score: 1, label: 'Informal', description: 'Informal conventions exist (e.g., "we use Claude for coding") but they are undocumented and unknown to newcomers.' },
-      { score: 2, label: 'Defined',  description: 'A written policy specifying permitted tools, prohibited uses, and review requirements is shared with the team.' },
-      { score: 3, label: 'Optimized',description: 'Policy is versioned, regularly reviewed against new AI capabilities, and compliance is actively verified.' },
+    "id": "C1-Q1",
+    "categoryId": 1,
+    "target": "human",
+    "question": "開発でAIツールを使ってよい範囲・禁止範囲・レビュー条件を、チームとして文書化していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "方針がなく、各自判断でAIを利用している。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "口頭の慣習はあるが、新規参画者が読める形ではない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "利用可能ツール、禁止用途、レビュー条件を文書化して共有している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "方針を定期見直しし、新しいAI機能・契約条件・事故情報を反映している。"
+      }
     ],
-    riskIfLow: 'Uncontrolled AI use leads to inconsistent quality, security gaps, and unclear accountability when AI-generated code causes incidents.',
-    recommendation: 'Define and publish an AI usage policy covering: permitted tools, prohibited use-cases, required human review steps, and accountability owners.',
-    issueTemplate: 'Create AI usage policy document: permitted tools, prohibited actions, review requirements, and accountability assignments.',
-    aiSelfCheck: 'Before starting work, check: Is there an AI usage policy for this project? If none exists, flag governance risk and request human clarification.',
+    "riskIfLow": "AI利用が統制されず、品質差・情報漏えい・責任不明確化が発生しやすくなります。",
+    "recommendation": "AI利用方針を作成し、利用可能ツール、禁止用途、人間レビュー、責任者を明記してください。",
+    "issueTemplate": "AI利用方針を作成する：利用可能ツール、禁止用途、レビュー条件、責任者を定義する。",
+    "aiSelfCheck": "作業開始前に、このプロジェクトのAI利用方針が存在するか確認する。存在しない場合はガバナンスリスクとして報告する。"
   },
   {
-    id: 'C1-Q2', categoryId: 1, target: 'human',
-    question: 'Is a named human accountable for every AI-assisted change before it is merged or released?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No human accountability is assigned. AI output is merged without a named reviewer.' },
-      { score: 1, label: 'Informal', description: 'The author is implicitly responsible but this is not formally stated anywhere.' },
-      { score: 2, label: 'Defined',  description: 'PR or commit policy requires a named human reviewer and approver for AI-assisted changes.' },
-      { score: 3, label: 'Optimized',description: 'Accountability is assigned, tracked, and referenced in incident reviews to improve the process.' },
+    "id": "C1-Q2",
+    "categoryId": 1,
+    "target": "human",
+    "question": "AI支援で作成・変更した成果物について、マージまたはリリース前に責任を持つ人間の承認者が明確ですか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "承認者が明確でなく、AI出力がそのまま取り込まれることがある。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "作成者が暗黙的に責任を持つが、記録には残らない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "PRまたはレビュー記録で、人間の承認者を明示している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "承認者・レビュー観点・事故時の振り返りまで紐づけて管理している。"
+      }
     ],
-    riskIfLow: 'Without named accountability, AI-generated defects or security issues have no clear owner, delaying response and learning.',
-    recommendation: 'Require all PRs touching AI-assisted code to have an explicit human approver listed in the PR description or review record.',
-    issueTemplate: 'Add human accountability requirement to PR template: name the reviewer responsible for AI-generated content.',
-    aiSelfCheck: 'Do not claim work is done if no human reviewer is assigned. Flag: "Human review required — owner not identified."',
+    "riskIfLow": "AI起因の欠陥が発生した際に、対応責任と学習責任が曖昧になります。",
+    "recommendation": "PRテンプレートに「AI支援有無」「人間レビュー担当」「確認観点」を追加してください。",
+    "issueTemplate": "PRテンプレートへAI支援変更の人間承認欄を追加する。",
+    "aiSelfCheck": "人間レビュー担当が未設定の場合、完了扱いにせず「人間レビュー要：担当未設定」と明記する。"
   },
   {
-    id: 'C1-Q3', categoryId: 1, target: 'human',
-    question: 'Does the team maintain an explicit list of permitted and prohibited AI tools and use-cases?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No list exists. Any AI tool may be used for any purpose without restriction.' },
-      { score: 1, label: 'Informal', description: 'Individual preferences guide tool choice with no team-level inventory.' },
-      { score: 2, label: 'Defined',  description: 'An authorized tool list is maintained with basic guidance on permitted contexts.' },
-      { score: 3, label: 'Optimized',description: 'Tool inventory is reviewed quarterly; new tools require security/quality evaluation before authorization.' },
+    "id": "C1-Q3",
+    "categoryId": 1,
+    "target": "human",
+    "question": "利用を許可するAIツールと、利用禁止・注意が必要なユースケースを一覧化していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "一覧がなく、任意のAIツールを任意用途で使える。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "個人の好みで使い分けており、チーム共通の棚卸しがない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "許可ツール一覧と利用可能な文脈を管理している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "新規ツール導入時に、セキュリティ・品質・契約観点で評価してから許可している。"
+      }
     ],
-    riskIfLow: 'Unvetted AI tools may introduce privacy risks, license conflicts, or inconsistent output quality across the team.',
-    recommendation: 'Maintain a team-level inventory of approved AI tools with their permitted use-cases and any restrictions.',
-    issueTemplate: 'Create and maintain an AI tool inventory document with authorized tools, permitted uses, and evaluation criteria.',
-    aiSelfCheck: 'Verify the tools you are using are on the project\'s authorized tool list. Flag unauthorized tool use for human review.',
+    "riskIfLow": "未評価のAIツールにより、機密情報流出、ライセンス問題、品質ばらつきが起きます。",
+    "recommendation": "許可AIツール台帳を作り、用途・入力禁止情報・評価日・責任者を管理してください。",
+    "issueTemplate": "許可AIツール台帳を作成し、用途・制約・評価基準を記載する。",
+    "aiSelfCheck": "使用予定のAIツールが許可台帳に載っているか確認する。未登録なら利用前に人間へ確認する。"
   },
   {
-    id: 'C1-Q4', categoryId: 1, target: 'human',
-    question: 'Are review criteria for AI-generated artifacts defined so reviewers know what to look for beyond "looks correct"?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No criteria defined. Reviewers approve AI output based on intuition alone.' },
-      { score: 1, label: 'Informal', description: 'Individual reviewers apply personal standards with no shared checklist.' },
-      { score: 2, label: 'Defined',  description: 'A documented review checklist exists covering logic, security, tests, and scope adherence.' },
-      { score: 3, label: 'Optimized',description: 'Checklist is evidence-based, updated from defect retrospectives, and tracked for effectiveness.' },
+    "id": "C1-Q4",
+    "categoryId": 1,
+    "target": "human",
+    "question": "AI生成物をレビューするとき、「見た目は正しそう」以上の確認基準が定義されていますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "確認基準がなく、レビュー担当者の勘に依存している。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "人により確認観点が異なり、チェックリストがない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "仕様適合、前提、セキュリティ、テスト、影響範囲を確認する基準がある。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "過去欠陥・インシデントからレビュー観点を更新し、実効性を測定している。"
+      }
     ],
-    riskIfLow: 'Without review criteria, AI hallucinations, scope violations, and security issues are consistently missed in review.',
-    recommendation: 'Define AI artifact review criteria: scope adherence, assumption detection, security checks, test coverage, and evidence requirements.',
-    issueTemplate: 'Create AI artifact review checklist covering: logic correctness, scope adherence, security, test coverage, and hallucination detection.',
-    aiSelfCheck: 'When submitting output for review, attach evidence: which criteria were checked, what was found, what was left unverified.',
+    "riskIfLow": "もっともらしい誤り、スコープ逸脱、セキュリティ不備が見落とされます。",
+    "recommendation": "AI成果物レビュー観点表を作成し、仕様根拠・実行証跡・未確認事項を必須化してください。",
+    "issueTemplate": "AI成果物レビュー観点表を作成する：仕様適合、前提、影響範囲、セキュリティ、テストを含める。",
+    "aiSelfCheck": "提出時に、確認済み・推定・未確認を分けて記載する。推定を事実として扱わない。"
   },
   {
-    id: 'C1-Q5', categoryId: 1, target: 'human',
-    question: 'Does the team have a defined response process when AI-assisted changes cause production incidents or quality failures?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No specific process for AI-related incidents. Treated the same as manual bugs with no learning loop.' },
-      { score: 1, label: 'Informal', description: 'Incidents are handled ad hoc; AI involvement is noted but not systematically analyzed.' },
-      { score: 2, label: 'Defined',  description: 'AI-related incidents trigger a root-cause analysis that traces back to AI tool, instruction, or review failure.' },
-      { score: 3, label: 'Optimized',description: 'Incident patterns feed back into policy, instruction, and review criteria updates systematically.' },
+    "id": "C1-Q5",
+    "categoryId": 1,
+    "target": "human",
+    "question": "AI支援変更が障害・品質事故を起こした場合の対応プロセスがありますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "AI関連事故としての扱いがなく、通常バグとして処理している。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "AI関与はメモするが、原因分析や再発防止には使っていない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "AIツール、指示、レビュー、テストのどこで失敗したかを分析する流れがある。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "事故傾向を方針、プロンプト、レビュー観点、品質ゲートへ反映している。"
+      }
     ],
-    riskIfLow: 'Without a response process, AI-related failures recur because no learning is extracted from each incident.',
-    recommendation: 'Add AI-involvement tracking to incident reports. Include root-cause analysis of AI tool, prompt, or review failure.',
-    issueTemplate: 'Define AI incident response process: detection, containment, root-cause (AI tool/instruction/review failure), policy update.',
-    aiSelfCheck: 'If your output caused a regression or incident, provide a root cause statement distinguishing AI error from instruction error from review failure.',
-  },
-
-  // ── Category 2: Agent Instruction Management ──────────────────────────────
-  {
-    id: 'C2-Q1', categoryId: 2, target: 'ai',
-    question: 'Does the project maintain agent instruction files (AGENTS.md, CLAUDE.md, or equivalent) that are complete and up-to-date?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No agent instruction files exist. AI agents receive no structured context about the project.' },
-      { score: 1, label: 'Informal', description: 'An instruction file exists but is incomplete or significantly out of date.' },
-      { score: 2, label: 'Defined',  description: 'AGENTS.md / CLAUDE.md covers environment, conventions, forbidden actions, and current task context.' },
-      { score: 3, label: 'Optimized',description: 'Instruction files are versioned, updated each sprint, and validated against actual agent behavior.' },
-    ],
-    riskIfLow: 'Without instruction files, AI agents operate on defaults, miss project conventions, and violate scope constraints.',
-    recommendation: 'Maintain AGENTS.md / CLAUDE.md covering: tech stack, conventions, forbidden actions, target files, and current task.',
-    issueTemplate: 'Create/update AGENTS.md (or CLAUDE.md) covering: environment, conventions, forbidden actions, and session context.',
-    aiSelfCheck: 'Before starting work, confirm: Have I read the latest AGENTS.md / CLAUDE.md? If it is missing or stale, flag this before proceeding.',
-  },
-  {
-    id: 'C2-Q2', categoryId: 2, target: 'ai',
-    question: 'Are agent instructions version-controlled and traceable to the changes that prompted them?',
-    choices: [
-      { score: 0, label: 'None',     description: 'Instruction files are not tracked in git. No history of what changed or why.' },
-      { score: 1, label: 'Informal', description: 'Files are in git but changes are undocumented and commit messages are vague.' },
-      { score: 2, label: 'Defined',  description: 'Changes to instruction files include commit messages explaining the trigger (incident, new convention, etc.).' },
-      { score: 3, label: 'Optimized',description: 'Instruction file changes are linked to issues, retrospectives, or incidents that caused them.' },
-    ],
-    riskIfLow: 'Without version history, it is impossible to diagnose why agents started behaving differently or revert a bad instruction change.',
-    recommendation: 'Commit instruction file changes with conventional commits (chore: update CLAUDE.md — add XYZ rule) linked to the triggering event.',
-    issueTemplate: 'Establish convention: all AGENTS.md changes committed with reason and linked to triggering issue or retrospective.',
-    aiSelfCheck: 'When updating instruction files, document the reason for the change in the commit message. Do not make silent updates.',
+    "riskIfLow": "同じAI起因の失敗が繰り返され、組織学習につながりません。",
+    "recommendation": "インシデント報告にAI関与有無と失敗箇所分類を追加してください。",
+    "issueTemplate": "AI関連インシデント対応フローを定義する：検知、封じ込め、原因分類、再発防止。",
+    "aiSelfCheck": "自分の出力が不具合につながった場合、AI誤り・指示不足・レビュー漏れを分けて原因を記載する。"
   },
   {
-    id: 'C2-Q3', categoryId: 2, target: 'ai',
-    question: 'Are distinct roles (Coordinator, Implementor, Verifier) defined and respected in multi-step AI workflows?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No role separation. One AI session does planning, implementation, and verification without separation.' },
-      { score: 1, label: 'Informal', description: 'Roles are understood informally but bleed into each other regularly.' },
-      { score: 2, label: 'Defined',  description: 'Coordinator, Implementor, and Verifier roles are defined and each session is explicitly assigned one role.' },
-      { score: 3, label: 'Optimized',description: 'Role violations are caught and corrected; agents confirm their role before each session begins.' },
+    "id": "C2-Q1",
+    "categoryId": 2,
+    "target": "ai",
+    "question": "AGENTS.md、CLAUDE.mdなど、AIエージェント向けの指示ファイルが最新状態で管理されていますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "指示ファイルがなく、AIは一般論で作業している。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "存在するが古い、または必要情報が不足している。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "環境、規約、禁止事項、現在の作業文脈を記載している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "スプリントや主要変更ごとに更新し、実際のAI挙動とのズレも確認している。"
+      }
     ],
-    riskIfLow: 'Without role separation, AI agents self-verify their own output, missing errors they introduced and creating false confidence.',
-    recommendation: 'Define and enforce role separation: Coordinator assigns, Implementor codes, Verifier checks against spec — no session plays multiple roles.',
-    issueTemplate: 'Document and enforce Coordinator/Implementor/Verifier role separation in project workflow and agent instructions.',
-    aiSelfCheck: 'Confirm your assigned role before starting. If asked to verify your own implementation, flag this as a role conflict requiring human review.',
+    "riskIfLow": "AIがプロジェクト固有の規約や制約を無視し、手戻りが増えます。",
+    "recommendation": "エージェント指示ファイルに、技術構成、規約、禁止事項、対象ファイル、完了条件を明記してください。",
+    "issueTemplate": "AGENTS.mdまたはCLAUDE.mdを整備し、環境・規約・禁止事項・現在状態を記載する。",
+    "aiSelfCheck": "作業開始前に最新の指示ファイルを読み、矛盾や古さを見つけたら作業前に報告する。"
   },
   {
-    id: 'C2-Q4', categoryId: 2, target: 'ai',
-    question: 'Do agent instructions explicitly define which files and modules are in-scope and out-of-scope for each task?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No scope definition. AI explores files freely and may modify anything it considers relevant.' },
-      { score: 1, label: 'Informal', description: 'Task scope is described in conversation but not written in instruction files.' },
-      { score: 2, label: 'Defined',  description: 'Each task specifies target files and explicitly lists out-of-scope files or directories.' },
-      { score: 3, label: 'Optimized',description: 'Scope is validated by checking git diff against the declared scope before committing.' },
+    "id": "C2-Q2",
+    "categoryId": 2,
+    "target": "ai",
+    "question": "AIエージェントに渡す指示は、毎回の会話だけでなく、再利用可能な形で蓄積されていますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "会話ごとにその場で指示しており、再利用できない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "よく使う文言はあるが、テンプレート化されていない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "作業種別ごとの指示テンプレートを管理している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "テンプレートの効果を振り返り、成功・失敗事例から改善している。"
+      }
     ],
-    riskIfLow: 'Undefined scope leads to unintended file changes, token overuse, and side effects in code the developer did not expect to change.',
-    recommendation: 'Add explicit scope to every task: list target files and declare out-of-scope files. Validate git diff matches scope before committing.',
-    issueTemplate: 'Add scope definition to task workflow: target files, out-of-scope list, and pre-commit scope validation step.',
-    aiSelfCheck: 'Before making changes, confirm which files are in scope. Do not modify out-of-scope files. If scope is unclear, ask before proceeding.',
+    "riskIfLow": "同じ説明を繰り返す必要があり、AIの理解品質が安定しません。",
+    "recommendation": "実装前、PR前、レビュー前、リリース前のプロンプトテンプレートを整備してください。",
+    "issueTemplate": "作業フェーズ別プロンプトテンプレートを作成する。",
+    "aiSelfCheck": "今回の作業に対応する標準プロンプトがあるか確認し、なければ不足として報告する。"
   },
   {
-    id: 'C2-Q5', categoryId: 2, target: 'ai',
-    question: 'Is there a defined process for updating agent instructions when conventions or constraints change?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No update process. Instructions become stale as the project evolves.' },
-      { score: 1, label: 'Informal', description: 'Instructions are updated when remembered, with no systematic trigger.' },
-      { score: 2, label: 'Defined',  description: 'Instructions are reviewed at sprint boundaries or after incidents and updated accordingly.' },
-      { score: 3, label: 'Optimized',description: 'Instruction quality is assessed in each retrospective; outdated instructions are a tracked quality issue.' },
+    "id": "C2-Q3",
+    "categoryId": 2,
+    "target": "ai",
+    "question": "AIエージェントが触ってよいファイル・触ってはいけないファイルを明示していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "制限がなく、AIが必要と判断したファイルを自由に変更する。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "口頭では伝えるが、永続的な記録がない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "対象ファイル、変更禁止ファイル、変更前確認が必要な領域を明記している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "pre-write hookやレビューゲートで、禁止領域の変更を検知・抑止している。"
+      }
     ],
-    riskIfLow: 'Stale agent instructions cause AI to apply outdated conventions, violate new constraints, and require repeated correction.',
-    recommendation: 'Include "review and update AGENTS.md" as a standard retrospective action. Treat stale instructions as a quality risk.',
-    issueTemplate: 'Schedule periodic review of AGENTS.md / CLAUDE.md: sprint-end or post-incident. Add to retrospective checklist.',
-    aiSelfCheck: 'If you discover instructions that are outdated or conflicting, flag this and request a human update before continuing.',
-  },
-
-  // ── Category 3: Requirements & Context Quality ────────────────────────────
-  {
-    id: 'C3-Q1', categoryId: 3, target: 'human',
-    question: 'Does the project maintain a specification document (spec.md or equivalent) that serves as the single source of truth?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No spec document exists. Requirements live only in conversations, tickets, or developer memory.' },
-      { score: 1, label: 'Informal', description: 'A spec document exists but is incomplete and frequently out of sync with implementation.' },
-      { score: 2, label: 'Defined',  description: 'spec.md covers functional requirements, constraints, verification criteria, and is updated when scope changes.' },
-      { score: 3, label: 'Optimized',description: 'Spec is the authoritative source; AI cannot start implementation without spec approval, and spec divergence is detected automatically.' },
-    ],
-    riskIfLow: 'Without a spec, AI implements based on conversation memory or inference, producing output that cannot be verified against intent.',
-    recommendation: 'Create and maintain spec.md covering: functional requirements, constraints, verification criteria, and explicit out-of-scope items.',
-    issueTemplate: 'Create spec.md with: functional requirements, constraints, verification criteria, and out-of-scope definition.',
-    aiSelfCheck: 'Before implementing, confirm a spec.md or equivalent exists. If missing, flag this as a requirements risk and request clarification.',
-  },
-  {
-    id: 'C3-Q2', categoryId: 3, target: 'human',
-    question: 'Is there a session-continuity document (e.g., CURRENT_STATE.md) that allows AI agents to resume context without re-explanation?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No continuity document. Every session starts with a full verbal re-briefing of project state.' },
-      { score: 1, label: 'Informal', description: 'Continuity information is sometimes written but inconsistently maintained.' },
-      { score: 2, label: 'Defined',  description: 'CURRENT_STATE.md is updated at each session end and contains: phase, completed tasks, next task, and blockers.' },
-      { score: 3, label: 'Optimized',description: 'Continuity document update is enforced by a session-end hook or gate; staleness is automatically detected.' },
-    ],
-    riskIfLow: 'Without continuity documents, each session wastes significant context on re-explanation, and AI agents risk duplicating or reversing prior work.',
-    recommendation: 'Establish CURRENT_STATE.md updated at each session end covering: current phase, last completed task, next task, blockers, and pending decisions.',
-    issueTemplate: 'Create CURRENT_STATE.md template and session-end update process (or hook). Make it the required starting point for each AI session.',
-    aiSelfCheck: 'At session start, read CURRENT_STATE.md. At session end, ensure it is updated before declaring work complete.',
+    "riskIfLow": "AIが善意で広範囲を変更し、レビュー不能・副作用・事故につながります。",
+    "recommendation": "ファイルスコープ表を作成し、変更可否と承認要否を明記してください。",
+    "issueTemplate": "変更可能ファイル・変更禁止ファイル・要承認領域を指示ファイルへ追加する。",
+    "aiSelfCheck": "変更前に対象ファイルが許可範囲か確認する。範囲外なら作業を止めて確認する。"
   },
   {
-    id: 'C3-Q3', categoryId: 3, target: 'ai',
-    question: 'Are forbidden actions and out-of-scope files explicitly declared so AI agents cannot inadvertently violate them?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No forbidden actions defined. AI may modify any file or take any action it deems helpful.' },
-      { score: 1, label: 'Informal', description: 'Forbidden actions are mentioned in conversation but not written in any persistent document.' },
-      { score: 2, label: 'Defined',  description: 'CLAUDE.md / spec.md explicitly lists forbidden actions (e.g., no external dependency addition, no CSS splitting).' },
-      { score: 3, label: 'Optimized',description: 'Pre-write hooks enforce critical forbidden actions automatically; violations are blocked before they can be committed.' },
+    "id": "C2-Q4",
+    "categoryId": 2,
+    "target": "ai",
+    "question": "AIエージェントへの指示に、完了条件と証跡提出条件が含まれていますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "完了条件が曖昧で、AIが自己判断で完了宣言する。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "完了条件はあるが、証跡の出し方は決まっていない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "テスト結果、変更理由、未確認事項、影響範囲の提出を求めている。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "完了報告の形式が固定され、レビュー時に機械的に確認できる。"
+      }
     ],
-    riskIfLow: 'Without explicit forbidden actions, AI applies generic best practices that may violate project-specific constraints, requiring expensive rework.',
-    recommendation: 'Add a "## Forbidden Actions" section to CLAUDE.md listing specific prohibited behaviors: file modifications, dependency additions, architectural changes.',
-    issueTemplate: 'Add Forbidden Actions section to CLAUDE.md: list prohibited file operations, dependency changes, and architectural modifications.',
-    aiSelfCheck: 'Before taking any action, check the forbidden actions list. If an action you consider is prohibited, flag it and request permission.',
+    "riskIfLow": "「動いたはず」「確認済み」の中身が曖昧になり、品質保証に使えません。",
+    "recommendation": "完了報告テンプレートを作成し、実行コマンド・結果・未確認事項を必須化してください。",
+    "issueTemplate": "完了報告テンプレートを追加する：変更点、証跡、確認済み、未確認、リスク。",
+    "aiSelfCheck": "完了時に、実行した確認と実行していない確認を分けて報告する。"
   },
   {
-    id: 'C3-Q4', categoryId: 3, target: 'human',
-    question: 'Are requirements decomposed into tasks with explicit dependencies so AI agents can work on exactly one task at a time?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No task decomposition. AI receives feature descriptions and decomposes them internally without traceability.' },
-      { score: 1, label: 'Informal', description: 'Tasks exist informally in tickets but are not linked to requirements or to each other.' },
-      { score: 2, label: 'Defined',  description: 'tasks.md maps each task to a requirement, defines dependencies, and scopes each task to a single logical change.' },
-      { score: 3, label: 'Optimized',description: 'Task completion is gated by spec verification criteria; task scope violations are detected before merge.' },
+    "id": "C2-Q5",
+    "categoryId": 2,
+    "target": "ai",
+    "question": "AIエージェントの指示ファイルに、過去の失敗・注意点・再発防止が反映されていますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "過去の失敗が指示に反映されていない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "個人の記憶にはあるが、AIが読める形ではない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "失敗事例と禁止事項を指示ファイルへ追記している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "失敗傾向を定期的に棚卸しし、プロンプト・フック・レビュー基準へ展開している。"
+      }
     ],
-    riskIfLow: 'Without task decomposition, AI scopes its own work, leading to oversized changes that are hard to review and carry hidden side effects.',
-    recommendation: 'Decompose requirements into tasks.md: each task has a unique ID, parent requirement, scope, and done criteria before AI starts implementation.',
-    issueTemplate: 'Create tasks.md with: task ID, parent requirement ref, file scope, done criteria, and dependency order.',
-    aiSelfCheck: 'Confirm you are implementing exactly one task from tasks.md. If your planned changes exceed the task scope, flag this for human decision.',
+    "riskIfLow": "同じ作業ミスがAIセッションを跨いで再発します。",
+    "recommendation": "lessons.mdやCURRENT_STATE.mdに、失敗・原因・予防策を残してください。",
+    "issueTemplate": "AI作業の失敗事例をlessons.mdへ記録し、指示ファイルから参照する。",
+    "aiSelfCheck": "過去の注意点に該当する作業か確認し、該当する場合は予防策を先に宣言する。"
   },
   {
-    id: 'C3-Q5', categoryId: 3, target: 'human',
-    question: 'Are significant architectural and design decisions recorded in Architecture Decision Records (ADRs) so AI agents understand the "why" behind constraints?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No ADRs exist. AI agents encounter constraints without context and may work around them unknowingly.' },
-      { score: 1, label: 'Informal', description: 'Design decisions are discussed in PRs or Slack but never consolidated into searchable records.' },
-      { score: 2, label: 'Defined',  description: 'ADRs exist for major architectural decisions covering: context, options considered, decision made, and consequences.' },
-      { score: 3, label: 'Optimized',description: 'ADRs are updated as decisions evolve; AI agents are directed to read relevant ADRs before working in affected areas.' },
+    "id": "C3-Q1",
+    "categoryId": 3,
+    "target": "human",
+    "question": "仕様・要件の正本となる文書があり、AIが実装前に参照できますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "仕様がなく、会話・チケット・記憶に依存している。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "文書はあるが、実装と同期していない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "機能要件、制約、検証条件、対象外を文書化している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "仕様承認なしにAIが実装できない運用で、仕様逸脱も検知している。"
+      }
     ],
-    riskIfLow: 'Without ADRs, AI agents violate architectural constraints they cannot infer from the code alone, and teams repeat analysis for previously settled questions.',
-    recommendation: 'Create ADR template and populate key decisions: why certain tech was chosen, rejected alternatives, and constraints that must be respected.',
-    issueTemplate: 'Create docs/adr/ directory with ADR template. Write ADRs for 3 most impactful architectural decisions made so far.',
-    aiSelfCheck: 'Before proposing architectural changes, search for relevant ADRs. If a proposed change conflicts with a recorded decision, flag it for human review.',
-  },
-
-  // ── Category 4: AI Artifact Review ────────────────────────────────────────
-  {
-    id: 'C4-Q1', categoryId: 4, target: 'human',
-    question: 'Does your team apply a defined review checklist specifically designed for AI-generated code, beyond standard code review?',
-    choices: [
-      { score: 0, label: 'None',     description: 'AI-generated code is reviewed the same as human-written code with no additional considerations.' },
-      { score: 1, label: 'Informal', description: 'Reviewers know to "be more careful" with AI code but apply no documented criteria.' },
-      { score: 2, label: 'Defined',  description: 'An AI-specific checklist covers: scope adherence, assumption detection, hallucination risk, and security.' },
-      { score: 3, label: 'Optimized',description: 'Checklist is evidence-based, updated from past AI-related defects, and tracked for skip rates.' },
-    ],
-    riskIfLow: 'AI-specific failure modes (hallucinations, plausible-but-wrong logic, scope violations) are systematically missed under standard review processes.',
-    recommendation: 'Create an AI artifact review checklist covering: scope compliance, assumption labeling, security, test coverage, and evidence requirements.',
-    issueTemplate: 'Create AI artifact review checklist: scope check, hallucination detection, assumption verification, security scan, and test validation.',
-    aiSelfCheck: 'When submitting for review, label each section: VERIFIED (tested), INFERRED (not tested), ASSUMED (not confirmed). Do not present inference as fact.',
-  },
-  {
-    id: 'C4-Q2', categoryId: 4, target: 'human',
-    question: 'Do reviewers require evidence for all review findings (evidence-only review), rejecting comments without provable backing?',
-    choices: [
-      { score: 0, label: 'None',     description: 'Review comments include general opinions, "feels like," or "I think" without evidence.' },
-      { score: 1, label: 'Informal', description: 'Evidence is sometimes provided but not required; subjective findings are common.' },
-      { score: 2, label: 'Defined',  description: 'Review policy requires each finding to include evidence: test result, spec reference, or reproducible example.' },
-      { score: 3, label: 'Optimized',description: 'Evidence-only review is enforced; findings without evidence are automatically excluded from review outputs.' },
-    ],
-    riskIfLow: 'Opinion-based reviews of AI output create noise, slow resolution, and may block valid AI-generated code without justification.',
-    recommendation: 'Establish evidence-only review policy: each finding must include a spec reference, failing test, or reproducible case. Remove findings that lack evidence.',
-    issueTemplate: 'Update review process to require evidence per finding: failing test ID, spec reference, or reproducible scenario.',
-    aiSelfCheck: 'Every review comment you generate must include evidence. State your evidence type: test result, spec clause, or observed behavior. No unsupported assertions.',
+    "riskIfLow": "AIが会話の断片や推測で実装し、意図と異なる成果物を作ります。",
+    "recommendation": "spec.md相当の正本を作り、要件・制約・受入条件・対象外を明記してください。",
+    "issueTemplate": "spec.mdを作成し、機能要件、制約、検証条件、対象外を整理する。",
+    "aiSelfCheck": "実装前に仕様正本を確認する。ない場合は要件リスクとして報告する。"
   },
   {
-    id: 'C4-Q3', categoryId: 4, target: 'ai',
-    question: 'Does the team have a defined method to detect when AI agents present assumptions or inferences as confirmed facts?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No distinction enforced. AI output is taken at face value without assumption flagging.' },
-      { score: 1, label: 'Informal', description: 'Reviewers sometimes probe AI claims but there is no systematic method.' },
-      { score: 2, label: 'Defined',  description: 'AI agents are required to label output as VERIFIED, INFERRED, or ASSUMED; reviewers check labels.' },
-      { score: 3, label: 'Optimized',description: 'Assumption labeling is tested in evaluation (eval) and agents failing to distinguish are retrained or prompted.' },
+    "id": "C3-Q2",
+    "categoryId": 3,
+    "target": "human",
+    "question": "AIセッションを跨いで作業状態を引き継ぐCURRENT_STATE.md等を管理していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "引き継ぎ文書がなく、毎回口頭で説明している。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "メモはあるが更新が不定期で信頼できない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "現在フェーズ、完了済み、次作業、保留事項、ブロッカーを更新している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "セッション終了時の更新がゲート化され、古い状態を検知できる。"
+      }
     ],
-    riskIfLow: 'AI agents confidently asserting unverified claims as facts leads to acceptance of wrong logic, invented APIs, and non-existent behaviors.',
-    recommendation: 'Require AI agents to label all claims as VERIFIED (evidence exists), INFERRED (logical deduction), or ASSUMED (no confirmation). Review these labels explicitly.',
-    issueTemplate: 'Add assumption-labeling requirement to agent instructions: VERIFIED / INFERRED / ASSUMED on all non-trivial claims.',
-    aiSelfCheck: 'Label every non-trivial claim in your output. Never present an inferred or assumed item as a confirmed fact without explicit evidence.',
+    "riskIfLow": "文脈ロスにより、AIが重複作業・逆戻り・前提誤認を起こします。",
+    "recommendation": "CURRENT_STATE.mdを整備し、セッション開始・終了時の更新ルールを決めてください。",
+    "issueTemplate": "CURRENT_STATE.mdテンプレートを作成し、毎回更新する運用を定義する。",
+    "aiSelfCheck": "開始時にCURRENT_STATE.mdを読み、終了時に更新してから完了宣言する。"
   },
   {
-    id: 'C4-Q4', categoryId: 4, target: 'human',
-    question: 'Are AI-generated tests reviewed with the same rigor as AI-generated implementation code?',
-    choices: [
-      { score: 0, label: 'None',     description: 'Tests generated by AI are accepted without review as long as they pass.' },
-      { score: 1, label: 'Informal', description: 'Tests are glanced at but not systematically reviewed for correctness of intent.' },
-      { score: 2, label: 'Defined',  description: 'AI-generated tests are reviewed for: correct assertions, edge case coverage, and avoidance of tautological tests.' },
-      { score: 3, label: 'Optimized',description: 'Test quality metrics (mutation score, assertion coverage) are tracked and AI test quality is benchmarked.' },
+    "id": "C3-Q3",
+    "categoryId": 3,
+    "target": "ai",
+    "question": "AIに禁止事項・対象外・やってはいけない判断を明示していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "禁止事項がなく、AIが良いと思った改善を自由に行う。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "会話中に伝えるが、永続文書にはない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "禁止アクション、対象外ファイル、追加依存禁止などを明記している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "重要な禁止事項はフックやCIで検知され、変更前に止められる。"
+      }
     ],
-    riskIfLow: 'AI-generated tests that pass trivially (testing nothing meaningful) create false confidence and mask real defects.',
-    recommendation: 'Review AI-generated tests for: meaningful assertions (not just "no exception"), edge case presence, and coverage of the spec\'s verification criteria.',
-    issueTemplate: 'Add AI test review criteria: check for tautological assertions, verify edge case coverage, and validate test aligns with spec criteria.',
-    aiSelfCheck: 'When generating tests, confirm each test can fail for a real defect. Do not generate tests that always pass regardless of implementation correctness.',
+    "riskIfLow": "AIが一般的なベストプラクティスを適用し、プロジェクト固有制約に反します。",
+    "recommendation": "Forbidden Actions節を設け、依存追加、設計変更、不要なリファクタ等の禁止を明記してください。",
+    "issueTemplate": "CLAUDE.mdまたはAGENTS.mdへForbidden Actionsを追加する。",
+    "aiSelfCheck": "行動前に禁止事項を確認する。該当する場合は実行せず、人間へ判断を求める。"
   },
   {
-    id: 'C4-Q5', categoryId: 4, target: 'human',
-    question: 'Is AI-generated documentation reviewed for accuracy before being merged alongside code changes?',
-    choices: [
-      { score: 0, label: 'None',     description: 'AI-generated documentation is merged without review, assuming it accurately reflects the code.' },
-      { score: 1, label: 'Informal', description: 'Docs are glanced at but rarely cross-checked against actual behavior.' },
-      { score: 2, label: 'Defined',  description: 'Docs are reviewed against the implementation; inaccuracies (hallucinated APIs, wrong examples) are corrected before merge.' },
-      { score: 3, label: 'Optimized',description: 'Documentation accuracy is tested where possible (doctest, example execution); inaccuracy rate is tracked.' },
+    "id": "C3-Q4",
+    "categoryId": 3,
+    "target": "human",
+    "question": "要件はAIが一度に扱える粒度のタスクへ分解されていますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "大きな要求をAIに渡し、分解もAI任せにしている。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "チケットはあるが、要件・依存・完了条件との関係が曖昧。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "タスクID、親要件、依存関係、対象範囲、完了条件を管理している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "タスク外変更を検知し、完了条件の証跡が揃うまで完了扱いにしない。"
+      }
     ],
-    riskIfLow: 'AI-generated documentation frequently contains hallucinated APIs, incorrect examples, and outdated descriptions that mislead future developers and AI agents.',
-    recommendation: 'Review all AI-generated documentation changes against the actual code implementation. Execute any code examples to verify correctness.',
-    issueTemplate: 'Add documentation review step: verify AI-generated docs match implementation, run code examples, remove hallucinated API references.',
-    aiSelfCheck: 'When generating documentation, only document behaviors you can verify in the current codebase. Label speculative or inferred behaviors explicitly.',
-  },
-
-  // ── Category 5: Testing & Automation ──────────────────────────────────────
-  {
-    id: 'C5-Q1', categoryId: 5, target: 'human',
-    question: 'Does the team practice test-first development (TDD) for AI-assisted code changes — writing tests before implementation?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No TDD practice. Tests are written after implementation (if at all), limiting their ability to catch design problems.' },
-      { score: 1, label: 'Informal', description: 'TDD is attempted occasionally but most changes begin with implementation rather than tests.' },
-      { score: 2, label: 'Defined',  description: 'TDD is the standard process: failing tests are committed before AI starts implementation, and AI targets those tests.' },
-      { score: 3, label: 'Optimized',description: 'Tests are derived from spec.md verification criteria; TDD compliance is verified in done-gate before PR.' },
-    ],
-    riskIfLow: 'Without test-first discipline, AI implements based on its interpretation rather than failing tests, producing code that "works" but violates requirements.',
-    recommendation: 'Require failing tests to exist before AI implementation starts. Tests should derive directly from spec.md verification criteria.',
-    issueTemplate: 'Establish TDD workflow: spec criteria → failing tests → AI implementation → tests pass → done-gate check.',
-    aiSelfCheck: 'Before implementing a feature, confirm that failing tests exist that define success criteria. Do not implement without a test target.',
-  },
-  {
-    id: 'C5-Q2', categoryId: 5, target: 'human',
-    question: 'Does a regression test suite run automatically to catch AI-introduced regressions in existing functionality?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No regression tests or they are not run automatically. Regressions are discovered in production.' },
-      { score: 1, label: 'Informal', description: 'Some regression tests exist but are run manually and inconsistently.' },
-      { score: 2, label: 'Defined',  description: 'Regression suite runs automatically on every PR and blocks merge on failure.' },
-      { score: 3, label: 'Optimized',description: 'Regression coverage is measured; high-risk areas identified from past AI changes have dedicated regression tests.' },
-    ],
-    riskIfLow: 'AI agents that modify code outside their intended scope introduce silent regressions that are expensive to detect and fix post-release.',
-    recommendation: 'Ensure regression tests run automatically on every PR. Use test failures to detect unintended AI changes to adjacent modules.',
-    issueTemplate: 'Set up automated regression test run in CI pipeline: triggers on every PR, blocks merge on failure, covers high-risk modules.',
-    aiSelfCheck: 'After implementation, confirm that existing tests still pass. If regression tests fail, investigate before claiming completion.',
+    "riskIfLow": "AI変更が肥大化し、レビュー不能・副作用・手戻りが増えます。",
+    "recommendation": "tasks.mdを作成し、1タスク1論理変更に分けてからAIへ渡してください。",
+    "issueTemplate": "tasks.mdを作成する：タスクID、親要件、対象ファイル、完了条件、依存順を定義する。",
+    "aiSelfCheck": "作業対象が1タスクに収まっているか確認し、超える場合はスコープ逸脱として報告する。"
   },
   {
-    id: 'C5-Q3', categoryId: 5, target: 'human',
-    question: 'Are end-to-end or integration tests in place for critical user flows that are often modified by AI agents?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No E2E or integration tests. Critical flows are verified only manually before release.' },
-      { score: 1, label: 'Informal', description: 'Some integration tests exist but do not cover the paths most often touched by AI.' },
-      { score: 2, label: 'Defined',  description: 'E2E tests cover the top 5 critical user flows; tests are maintained and run in CI.' },
-      { score: 3, label: 'Optimized',description: 'E2E coverage maps to high-AI-modification-frequency paths; test gaps are a tracked risk.' },
+    "id": "C3-Q5",
+    "categoryId": 3,
+    "target": "human",
+    "question": "重要な設計判断をADR等で残し、AIが「なぜその制約があるか」を理解できますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "ADRがなく、設計判断は人の記憶に残っている。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "PRやチャットにはあるが、検索しやすい記録ではない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "主要判断について、背景、選択肢、決定、影響を記録している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "判断が変わった場合もADRを更新し、AI作業前に参照させている。"
+      }
     ],
-    riskIfLow: 'AI-modified code passes unit tests but breaks integrated flows that unit tests cannot detect, discovered only by users.',
-    recommendation: 'Map your most AI-modified code paths to E2E tests. At minimum, test the primary happy path and one critical error path.',
-    issueTemplate: 'Create E2E tests for top critical user flows. Map test coverage to AI modification frequency — highest-risk paths first.',
-    aiSelfCheck: 'When modifying code that affects user-facing flows, confirm that E2E tests cover those flows. Flag gaps for human attention.',
+    "riskIfLow": "AIが制約の理由を理解できず、過去に棄却した設計を再提案します。",
+    "recommendation": "docs/adr/を作成し、主要な技術選定・制約・不採用理由を記録してください。",
+    "issueTemplate": "ADRテンプレートとdocs/adr/を作成し、重要判断を3件以上記録する。",
+    "aiSelfCheck": "設計変更を提案する前に関連ADRを検索し、矛盾する場合は人間判断に回す。"
   },
   {
-    id: 'C5-Q4', categoryId: 5, target: 'human',
-    question: 'Is test coverage measured and a minimum threshold enforced as a quality gate?',
-    choices: [
-      { score: 0, label: 'None',     description: 'Coverage is not measured. The team has no visibility into how much code is tested.' },
-      { score: 1, label: 'Informal', description: 'Coverage is measured occasionally but no threshold is enforced.' },
-      { score: 2, label: 'Defined',  description: 'Coverage is measured in CI and a minimum threshold (e.g., 80%) is enforced before merge.' },
-      { score: 3, label: 'Optimized',description: 'Coverage trend is monitored; new AI-generated code is specifically checked for coverage regression.' },
+    "id": "C4-Q1",
+    "categoryId": 4,
+    "target": "human",
+    "question": "AI生成コード専用のレビュー観点を、通常のコードレビューとは別に定義していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "人間作成コードと同じ観点のみで確認している。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "「AIは注意して見る」程度で、観点は人任せ。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "スコープ遵守、前提、幻覚、セキュリティ、テストを確認している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "過去のAI起因欠陥から観点を更新し、レビュー漏れを測定している。"
+      }
     ],
-    riskIfLow: 'Without coverage measurement, AI agents produce code with no tests and the gap compounds over time, making refactoring increasingly risky.',
-    recommendation: 'Configure coverage measurement in CI with a minimum 80% threshold. Fail PRs that reduce coverage below the threshold.',
-    issueTemplate: 'Configure test coverage measurement in CI. Set minimum 80% threshold. Block PRs that drop below threshold.',
-    aiSelfCheck: 'After generating code, check whether corresponding tests cover the new logic. If coverage would drop, generate missing tests before claiming completion.',
+    "riskIfLow": "AI特有のもっともらしい誤りやスコープ逸脱を見落とします。",
+    "recommendation": "AI生成物レビュー表を整備し、通常レビューに加えてAI特有リスクを確認してください。",
+    "issueTemplate": "AI生成コード専用レビュー観点を作成する。",
+    "aiSelfCheck": "提出時に、AIが生成した範囲と人間が確認すべき観点を明示する。"
   },
   {
-    id: 'C5-Q5', categoryId: 5, target: 'ai',
-    question: 'Are non-deterministic AI outputs (LLM responses, generated content) evaluated systematically using an eval framework?',
-    choices: [
-      { score: 0, label: 'None',     description: 'AI output quality is assessed subjectively by developers on an ad hoc basis.' },
-      { score: 1, label: 'Informal', description: 'Spot-checks are done but no systematic dataset, scorer, or baseline tracking exists.' },
-      { score: 2, label: 'Defined',  description: 'A golden dataset exists with a scorer and baseline. Eval runs on each prompt or model change.' },
-      { score: 3, label: 'Optimized',description: 'Eval is automated in CI for AI-facing code changes; regression in quality metrics blocks merge.' },
+    "id": "C4-Q2",
+    "categoryId": 4,
+    "target": "human",
+    "question": "レビュー指摘に、仕様・テスト結果・再現手順などの根拠を必須にしていますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "根拠なしの感覚的コメントが許容されている。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "根拠を出すこともあるが必須ではない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "各指摘に、証跡、仕様参照、再現条件のいずれかを付けている。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "根拠なし指摘はレビュー出力から除外され、証跡品質を測定している。"
+      }
     ],
-    riskIfLow: 'Without eval, prompt or model changes that degrade output quality are deployed undetected, discovered only through user complaints.',
-    recommendation: 'Build a golden dataset (20-50 examples from production), define a scorer (faithfulness, correctness), record a baseline, and run eval on each change.',
-    issueTemplate: 'Create evals/datasets/ with golden examples. Implement eval runner. Establish baseline scores. Add eval to pre-release checklist.',
-    aiSelfCheck: 'When modifying prompts or models, do not claim improvement without running eval. Report score vs. baseline. Flag regressions explicitly.',
-  },
-
-  // ── Category 6: CI/CD & Quality Gates ─────────────────────────────────────
-  {
-    id: 'C6-Q1', categoryId: 6, target: 'repo',
-    question: 'Does the project have a CI pipeline that runs automatically on every pull request?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No CI pipeline. Builds and tests are run manually only when developers remember to do so.' },
-      { score: 1, label: 'Informal', description: 'CI exists for main branch only; PRs are not automatically tested.' },
-      { score: 2, label: 'Defined',  description: 'CI runs on every PR, executes build, lint, and tests, and blocks merge on failure.' },
-      { score: 3, label: 'Optimized',description: 'CI coverage evolves with the project; failures are analyzed for AI-specific patterns (flaky tests, scope violations).' },
-    ],
-    riskIfLow: 'Without CI on PRs, AI-generated changes that break the build or tests reach main branch and block other developers.',
-    recommendation: 'Configure CI to run on every PR: build, lint, and test. Require all checks to pass before merge is allowed.',
-    issueTemplate: 'Set up CI pipeline: runs on PR open/update, executes build + lint + tests, blocks merge on failure.',
-    aiSelfCheck: 'Confirm CI is configured for this project. Do not claim implementation complete if CI is not set up to verify the change.',
-  },
-  {
-    id: 'C6-Q2', categoryId: 6, target: 'repo',
-    question: 'Are quality gates enforced automatically before any merge to the main branch — beyond just CI passing?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No merge quality gates. Anyone can merge to main at any time regardless of CI status.' },
-      { score: 1, label: 'Informal', description: 'CI must pass but no additional gates exist (coverage, review approval, etc.).' },
-      { score: 2, label: 'Defined',  description: 'Merge requires: CI pass + required reviewer approval + coverage threshold + no unresolved review comments.' },
-      { score: 3, label: 'Optimized',description: 'Gates include AI-specific checks: scope validation, assumption labeling verification, and eval scores where applicable.' },
-    ],
-    riskIfLow: 'Without merge gates beyond CI, AI-generated code with poor quality, missing reviews, or test gaps reaches main undetected.',
-    recommendation: 'Configure branch protection with: required CI pass, required reviewer approval, and optional coverage check. Add AI-specific review checklist as a gate.',
-    issueTemplate: 'Configure branch protection rules: required CI, required reviewer, coverage threshold, and no unresolved comments.',
-    aiSelfCheck: 'Before marking a task complete, verify all merge gates are satisfied. Do not claim completion if any gate is unverified.',
+    "riskIfLow": "主観レビューになり、AIにも人間にも改善可能な情報が残りません。",
+    "recommendation": "Evidence-only reviewを導入し、指摘には必ず根拠を添えてください。",
+    "issueTemplate": "レビュー指摘テンプレートに根拠欄を追加する。",
+    "aiSelfCheck": "レビュー結果を出す際は、各指摘に証拠または未確認理由を付ける。"
   },
   {
-    id: 'C6-Q3', categoryId: 6, target: 'repo',
-    question: 'Does CI automatically scan for hardcoded secrets, credentials, and sensitive data in all code changes?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No secret scanning. Secrets are occasionally committed and caught only during manual review.' },
-      { score: 1, label: 'Informal', description: 'Developers manually check for secrets before commit but there is no automated enforcement.' },
-      { score: 2, label: 'Defined',  description: 'Secret scanning (gitleaks, trufflehog, or equivalent) runs in CI and blocks merge on detection.' },
-      { score: 3, label: 'Optimized',description: 'Pre-commit hooks prevent secrets from reaching CI; scanning is fast and false-positive rate is managed.' },
+    "id": "C4-Q3",
+    "categoryId": 4,
+    "target": "human",
+    "question": "AIが生成した前提・推定・未確認事項を、レビュー時に分離して確認していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "前提や推定を分けず、AI出力をそのまま読む。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "気になる箇所だけ確認するが体系化していない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "AI出力に「確認済み」「推定」「未確認」を明示している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "未確認事項が残る場合は、マージ前に承認または検証タスク化している。"
+      }
     ],
-    riskIfLow: 'AI agents frequently include real credentials in example code, configuration, or test fixtures, creating security incidents.',
-    recommendation: 'Add gitleaks or equivalent to CI pipeline. Add pre-commit hook as first defense. Configure .gitleaksignore for known false positives.',
-    issueTemplate: 'Add secret scanning to CI (gitleaks). Add pre-commit hook. Configure exclusions for test fixtures. Alert on detection.',
-    aiSelfCheck: 'Before committing, grep for common secret patterns: API keys, tokens, passwords, and connection strings. Never hardcode credentials.',
+    "riskIfLow": "AIの推測が事実として扱われ、仕様逸脱や欠陥につながります。",
+    "recommendation": "AI出力フォーマットに、確認済み・推定・未確認の区分を入れてください。",
+    "issueTemplate": "AI出力テンプレートにVerified / Inferred / Not verifiedを追加する。",
+    "aiSelfCheck": "推定事項を事実として書かず、未確認として明示する。"
   },
   {
-    id: 'C6-Q4', categoryId: 6, target: 'repo',
-    question: 'Are linting and code formatting checks automated in CI to enforce consistent code style regardless of AI tool used?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No automated linting or formatting. Style inconsistencies accumulate as different AI tools apply different conventions.' },
-      { score: 1, label: 'Informal', description: 'Linting is configured in the editor but not enforced in CI.' },
-      { score: 2, label: 'Defined',  description: 'CI runs linting and formatting checks; PRs failing these checks cannot be merged.' },
-      { score: 3, label: 'Optimized',description: 'Auto-formatting is applied at pre-commit, reducing CI failures to near-zero for style issues.' },
+    "id": "C4-Q4",
+    "categoryId": 4,
+    "target": "repo",
+    "question": "AI生成変更の差分サイズと影響範囲を、レビュー可能な量に制御していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "AIが大量変更しても、そのままレビューしている。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "大きすぎる場合だけ人が分割を依頼する。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "差分行数、ファイル数、論理変更数の上限を決めている。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "CIやPRテンプレートで過大差分を検知し、分割を促している。"
+      }
     ],
-    riskIfLow: 'Different AI tools apply different style conventions, creating noisy diffs and making code harder to review and maintain.',
-    recommendation: 'Configure a linter and formatter appropriate to your language. Run in CI with merge-blocking enforcement. Add auto-format as a pre-commit hook.',
-    issueTemplate: 'Configure linter (eslint/flake8/golangci-lint) and formatter (prettier/black/gofmt). Add to CI with merge-blocking enforcement.',
-    aiSelfCheck: 'Ensure generated code passes linting before submitting. Do not submit code that would fail CI lint checks.',
+    "riskIfLow": "レビュー密度が下がり、重要な欠陥が差分に埋もれます。",
+    "recommendation": "PRサイズ上限と分割基準を定義し、AIにも事前に守らせてください。",
+    "issueTemplate": "PRサイズ上限と分割基準を定義する。",
+    "aiSelfCheck": "差分が大きくなる場合は、実装前に分割案を提示する。"
   },
   {
-    id: 'C6-Q5', categoryId: 6, target: 'human',
-    question: 'Is there a formal Definition of Done that all AI-assisted work must satisfy before being declared complete?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No Definition of Done. "Done" means the developer feels satisfied, with no objective criteria.' },
-      { score: 1, label: 'Informal', description: 'Informal expectations exist but are not written or consistently applied.' },
-      { score: 2, label: 'Defined',  description: 'DoD is written and applied: tests pass, CI passes, review complete, docs updated, and spec criteria met.' },
-      { score: 3, label: 'Optimized',description: 'DoD is enforced by a done-gate check (automated or checklist-gated) before any PR can be merged.' },
+    "id": "C4-Q5",
+    "categoryId": 4,
+    "target": "human",
+    "question": "AIレビューで見つかった欠陥を分類し、次回のプロンプトや観点へ反映していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "欠陥を直すだけで、分類・再発防止を残していない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "印象的な欠陥だけメモしている。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "欠陥を前提誤り、仕様誤解、実装誤り、テスト不足などで分類している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "分類結果をプロンプト、レビュー観点、テスト方針へ継続的に反映している。"
+      }
     ],
-    riskIfLow: '"Done" without clear criteria means AI-generated work is considered complete when it "runs" rather than when it meets all requirements and quality standards.',
-    recommendation: 'Define and publish a Done criteria checklist: tests pass, CI green, spec criteria satisfied, security clean, docs updated, evidence provided.',
-    issueTemplate: 'Write and publish Definition of Done. Apply as a required self-check before every PR creation.',
-    aiSelfCheck: 'Before declaring work complete, self-check the Definition of Done. Do not claim "done" without verifying every criterion with evidence.',
-  },
-
-  // ── Category 7: Security & Privacy ────────────────────────────────────────
-  {
-    id: 'C7-Q1', categoryId: 7, target: 'repo',
-    question: 'Are all secrets, API keys, and credentials managed through environment variables or a secrets manager — never hardcoded?',
-    choices: [
-      { score: 0, label: 'None',     description: 'Secrets appear in code files, sometimes committed to git.' },
-      { score: 1, label: 'Informal', description: 'Developers generally avoid hardcoding but there is no enforcement mechanism.' },
-      { score: 2, label: 'Defined',  description: '.env files are gitignored, secrets are accessed via env vars, and the pattern is documented in CLAUDE.md.' },
-      { score: 3, label: 'Optimized',description: 'Automated scanning catches any accidental hardcoding before commit; secret rotation process exists.' },
-    ],
-    riskIfLow: 'Hardcoded secrets committed to git create persistent security vulnerabilities even after deletion, as git history retains them.',
-    recommendation: 'Add .env to .gitignore. Document env var usage in CLAUDE.md. Configure secret scanning pre-commit. Add .env.example as documentation.',
-    issueTemplate: 'Audit codebase for hardcoded secrets. Add .gitignore rules. Create .env.example. Configure secret scanning.',
-    aiSelfCheck: 'Never hardcode credentials, tokens, API keys, or connection strings. Use environment variable patterns. Flag any request to hardcode secrets.',
-  },
-  {
-    id: 'C7-Q2', categoryId: 7, target: 'human',
-    question: 'Is all user-provided input validated at system boundaries before being processed or stored?',
-    choices: [
-      { score: 0, label: 'None',     description: 'Input validation is absent or applied inconsistently. External data is trusted without verification.' },
-      { score: 1, label: 'Informal', description: 'Some validation exists in ad hoc locations but no consistent boundary rule is applied.' },
-      { score: 2, label: 'Defined',  description: 'Input validation is applied at all defined system boundaries using schema validation where available.' },
-      { score: 3, label: 'Optimized',description: 'Validation coverage is tested with adversarial inputs; validation logic is separate from business logic.' },
-    ],
-    riskIfLow: 'AI-generated code that trusts external input enables injection attacks, data corruption, and unexpected behavior in edge cases.',
-    recommendation: 'Define system boundaries and require schema-based validation at each entry point. Fail fast with clear error messages rather than silent acceptance.',
-    issueTemplate: 'Audit system boundaries and add input validation. Use schema validation library. Write tests with adversarial inputs.',
-    aiSelfCheck: 'When generating code that accepts external input, always add validation at the boundary. Never trust data from users, APIs, or file systems without validation.',
+    "riskIfLow": "同じタイプのAI欠陥が継続的に混入します。",
+    "recommendation": "AI欠陥分類表を作り、再発防止の更新先を明確にしてください。",
+    "issueTemplate": "AI欠陥分類と再発防止ループを作成する。",
+    "aiSelfCheck": "指摘を受けたら、単なる修正だけでなく、再発防止として何を更新すべきか提案する。"
   },
   {
-    id: 'C7-Q3', categoryId: 7, target: 'ai',
-    question: 'Does the team have awareness of and defenses against LLM-specific security risks (prompt injection, data leakage, insecure output)?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No awareness of LLM-specific risks. AI integration is treated the same as any other external API.' },
-      { score: 1, label: 'Informal', description: 'General awareness exists but no specific defenses are implemented.' },
-      { score: 2, label: 'Defined',  description: 'Known LLM risks (OWASP Top 10 for LLMs) are reviewed and documented controls exist for applicable risks.' },
-      { score: 3, label: 'Optimized',description: 'LLM-specific security is tested regularly and new OWASP LLM advisories are reviewed on release.' },
+    "id": "C5-Q1",
+    "categoryId": 5,
+    "target": "repo",
+    "question": "AI支援変更に対して、自動テストが変更内容を直接検証していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "テストなし、または手動確認のみ。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "既存テストを流すが、変更内容に対応した追加は少ない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "変更内容に対応するユニット、統合、E2E等を追加・更新している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "AI変更前にテスト観点を定義し、カバレッジと欠陥検出率も追跡している。"
+      }
     ],
-    riskIfLow: 'LLM-integrated applications face unique attack vectors (prompt injection, model DoS, insecure plugin execution) absent from traditional software.',
-    recommendation: 'Review OWASP Top 10 for LLM Applications. Document which risks apply to your system. Implement controls for the top applicable risks.',
-    issueTemplate: 'Complete OWASP Top 10 LLM risk assessment. Document applicable risks. Implement controls for the 3 highest-risk items.',
-    aiSelfCheck: 'When generating AI-integration code, check for: prompt injection vulnerabilities, unvalidated AI output used in security decisions, and excessive data passed to LLMs.',
+    "riskIfLow": "AI生成コードの正常系だけが通り、境界・例外・退行が漏れます。",
+    "recommendation": "AI変更には、対応するテスト追加または追加不要の根拠を必須にしてください。",
+    "issueTemplate": "AI支援変更のテスト追加ルールを定義する。",
+    "aiSelfCheck": "実装前に、何のテストで完了を確認するか宣言する。"
   },
   {
-    id: 'C7-Q4', categoryId: 7, target: 'repo',
-    question: 'Are project dependencies regularly reviewed for known security vulnerabilities?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No dependency scanning. Known vulnerabilities may exist undetected in the dependency tree.' },
-      { score: 1, label: 'Informal', description: 'Manual review occurs occasionally but is not systematic or automated.' },
-      { score: 2, label: 'Defined',  description: 'Dependency scanning (npm audit, pip audit, Dependabot, etc.) runs in CI and high/critical findings are addressed.' },
-      { score: 3, label: 'Optimized',description: 'Automated PRs for dependency updates are reviewed promptly; SLA exists for critical vulnerability resolution.' },
+    "id": "C5-Q2",
+    "categoryId": 5,
+    "target": "human",
+    "question": "AIが作ったテストケースを、人間がテスト設計観点でレビューしていますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "AI生成テストをそのまま採用している。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "ざっと読むが、観点網羅性までは見ない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "同値分割、境界値、状態遷移、デシジョンテーブル等で確認している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "欠陥傾向からテスト観点を更新し、AIテスト生成にフィードバックしている。"
+      }
     ],
-    riskIfLow: 'AI agents often suggest adding dependencies without security evaluation, introducing vulnerable packages silently.',
-    recommendation: 'Enable Dependabot or equivalent. Run dependency audit in CI. Define SLA for high/critical vulnerability fixes.',
-    issueTemplate: 'Configure automated dependency scanning (Dependabot / npm audit / pip-audit). Add to CI. Define vulnerability SLA.',
-    aiSelfCheck: 'When suggesting new dependencies, check their security posture. Do not add packages with known high/critical vulnerabilities without flagging.',
+    "riskIfLow": "AIが見落としやすい条件や業務ルールがテストから抜けます。",
+    "recommendation": "AI生成テストに対するQAレビュー観点を整備してください。",
+    "issueTemplate": "AI生成テストレビュー観点を作成する。",
+    "aiSelfCheck": "テスト生成時に、使ったテスト設計技法と未網羅リスクを明記する。"
   },
   {
-    id: 'C7-Q5', categoryId: 7, target: 'human',
-    question: 'Is there a clear policy on what data may be sent to AI tools — protecting personal data, secrets, and proprietary information?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No policy. Developers send any project data to AI tools without restrictions or awareness.' },
-      { score: 1, label: 'Informal', description: 'General caution is advised but no documented guidelines exist.' },
-      { score: 2, label: 'Defined',  description: 'Data classification policy defines what may and may not be sent to AI tools. Teams are trained on it.' },
-      { score: 3, label: 'Optimized',description: 'Policy is enforced through tooling where possible; incidents of policy violation are tracked and remediated.' },
+    "id": "C5-Q3",
+    "categoryId": 5,
+    "target": "repo",
+    "question": "AI支援変更後に、退行確認を自動で実行できる状態ですか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "退行確認は人手依存で、毎回ばらつく。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "一部自動化されているが、重要機能を網羅していない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "主要機能のスモーク・回帰テストをCIまたはローカルで実行できる。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "リスクに応じて実行範囲を選び、結果をPR証跡として残している。"
+      }
     ],
-    riskIfLow: 'Personal data, credentials, or proprietary business logic sent to AI tools may be used for model training or exposed through model inversion attacks.',
-    recommendation: 'Define a data classification policy for AI tool input. Prohibit sending PII, credentials, or confidential business data to AI tools.',
-    issueTemplate: 'Create AI data-sharing policy: define prohibited data categories, required anonymization, and approved data patterns for AI tool input.',
-    aiSelfCheck: 'Before including data in prompts or context, confirm it does not contain PII, credentials, or confidential business information.',
-  },
-
-  // ── Category 8: Traceability ───────────────────────────────────────────────
-  {
-    id: 'C8-Q1', categoryId: 8, target: 'repo',
-    question: 'Are code changes traceable from requirement → issue → PR → commit — so any change can be understood in its business context?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No linkage between commits and requirements. Code changes cannot be traced to their business purpose.' },
-      { score: 1, label: 'Informal', description: 'Some commits reference issue numbers but the practice is inconsistent.' },
-      { score: 2, label: 'Defined',  description: 'All PRs reference an issue; commits follow a convention that includes issue/task IDs.' },
-      { score: 3, label: 'Optimized',description: 'Full traceability is validated: any change can be traced from business requirement to test evidence.' },
-    ],
-    riskIfLow: 'Without traceability, AI-generated changes cannot be audited, debugged, or rolled back with full context — critical for compliance and incident response.',
-    recommendation: 'Require all PRs to reference an issue ID. Use conventional commits with task IDs. Validate the requirement→PR chain before release.',
-    issueTemplate: 'Configure PR template to require issue reference. Add conventional commit enforcement to CI. Validate traceability chain in release checklist.',
-    aiSelfCheck: 'Every commit and PR you create must reference a task or issue ID. Do not create orphan commits without a traceable business reason.',
-  },
-  {
-    id: 'C8-Q2', categoryId: 8, target: 'repo',
-    question: 'Do commit messages follow a defined convention (e.g., Conventional Commits) that makes the intent of each change clear?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No commit convention. Messages are "fix", "update", or empty — providing no context for future readers.' },
-      { score: 1, label: 'Informal', description: 'Conventional Commits is encouraged but not enforced; quality varies widely.' },
-      { score: 2, label: 'Defined',  description: 'Conventional Commits format is enforced via commitlint or equivalent; violations block merge.' },
-      { score: 3, label: 'Optimized',description: 'Commit messages are reviewed for quality (not just format); CHANGELOG is auto-generated from commit history.' },
-    ],
-    riskIfLow: 'Poor commit messages make AI change history uninterpretable, preventing future AI agents or developers from understanding why changes were made.',
-    recommendation: 'Enforce Conventional Commits (feat/fix/refactor/docs/test/chore) with commitlint in CI. Require body text for non-trivial changes.',
-    issueTemplate: 'Configure commitlint with Conventional Commits rules. Add to CI. Update CLAUDE.md to require conventional commit format.',
-    aiSelfCheck: 'Write commit messages in Conventional Commits format: type(scope): description. Add a body for non-trivial changes explaining WHY, not just WHAT.',
+    "riskIfLow": "AI変更の副作用をリリース前に検知できません。",
+    "recommendation": "主要業務フローのスモークテストを整備し、PR前に実行してください。",
+    "issueTemplate": "主要業務フローのスモーク/回帰テストを整備する。",
+    "aiSelfCheck": "変更影響範囲に応じて、必要な回帰確認を選択し結果を報告する。"
   },
   {
-    id: 'C8-Q3', categoryId: 8, target: 'ai',
-    question: 'Is AI contribution to code changes documented in PRs so reviewers and future developers know which parts were AI-generated?',
-    choices: [
-      { score: 0, label: 'None',     description: 'AI contribution is invisible. PR descriptions do not mention AI usage or which parts were AI-generated.' },
-      { score: 1, label: 'Informal', description: 'AI involvement is mentioned informally in some PRs but not consistently.' },
-      { score: 2, label: 'Defined',  description: 'PR template includes an AI contribution section: tool used, scope, and human review performed.' },
-      { score: 3, label: 'Optimized',description: 'AI contribution data feeds process improvement: AI-heavy PRs receive extra scrutiny and their defect rate is tracked.' },
+    "id": "C5-Q4",
+    "categoryId": 5,
+    "target": "repo",
+    "question": "テストデータと期待結果が、AIにも人間にも理解できる形で管理されていますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "テストデータが個人環境や記憶に依存している。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "一部メモはあるが、期待結果と紐づいていない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "テストデータ、前提条件、期待結果、作成手順を管理している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "データ更新時に影響テストを特定し、CIやテスト管理と連携している。"
+      }
     ],
-    riskIfLow: 'Invisible AI contribution prevents appropriate review rigor and makes it impossible to analyze whether AI usage correlates with quality issues.',
-    recommendation: 'Add an AI contribution section to the PR template: AI tool, scope of AI assistance, and confirmation that AI output was reviewed.',
-    issueTemplate: 'Update PR template: add "AI Contribution" section with tool, scope, and human review confirmation.',
-    aiSelfCheck: 'In every PR description, declare your AI involvement: which parts were AI-generated, what review was applied, and what was left unverified.',
+    "riskIfLow": "AIが適当なデータや誤った期待値でテストを作成します。",
+    "recommendation": "テストデータ台帳と期待結果を整備してください。",
+    "issueTemplate": "テストデータ・期待結果・前提条件の管理表を作成する。",
+    "aiSelfCheck": "テストを書く前に、利用データと期待結果の根拠を確認する。"
   },
   {
-    id: 'C8-Q4', categoryId: 8, target: 'human',
-    question: 'Are all significant design and architectural decisions logged in a searchable, persistent record accessible to AI agents?',
-    choices: [
-      { score: 0, label: 'None',     description: 'Design decisions exist only in developer memory or ephemeral Slack conversations.' },
-      { score: 1, label: 'Informal', description: 'Some decisions appear in PR descriptions or README but with no structured format or search.' },
-      { score: 2, label: 'Defined',  description: 'ADRs are maintained in docs/adr/ with a standard format; new AI agents are directed to read them.' },
-      { score: 3, label: 'Optimized',description: 'ADRs are linked from relevant code sections; agents are tested on their ability to find and apply them correctly.' },
+    "id": "C5-Q5",
+    "categoryId": 5,
+    "target": "human",
+    "question": "非機能品質（性能、保守性、可観測性、アクセシビリティ等）をAI変更でも確認していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "機能が動けばよい扱いで、非機能を確認しない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "気づいた範囲だけ確認する。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "AI変更にも非機能チェックリストを適用している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "品質特性ごとに基準値・測定方法・例外処理を運用している。"
+      }
     ],
-    riskIfLow: 'AI agents without access to decision history repeat settled debates, violate constraints established for good reasons, and cannot explain why certain patterns are used.',
-    recommendation: 'Maintain ADRs in docs/adr/. Reference them in CLAUDE.md. Direct AI agents to read relevant ADRs before modifying affected areas.',
-    issueTemplate: 'Create docs/adr/ directory. Write ADRs for top 5 architectural decisions. Reference ADR directory in CLAUDE.md.',
-    aiSelfCheck: 'Before proposing architecture changes, search docs/adr/ for relevant decisions. If no ADR exists for a significant decision, flag the gap.',
+    "riskIfLow": "機能は動くが、運用品質や利用時品質が低下します。",
+    "recommendation": "ISO/IEC 25010等を参考に、AI変更向け非機能チェックを整備してください。",
+    "issueTemplate": "AI変更向け非機能品質チェックリストを作成する。",
+    "aiSelfCheck": "変更が性能、保守性、可観測性、アクセシビリティへ影響するか確認する。"
   },
   {
-    id: 'C8-Q5', categoryId: 8, target: 'human',
-    question: 'Can tests be traced back to the specific requirements they verify, ensuring every requirement has test coverage?',
-    choices: [
-      { score: 0, label: 'None',     description: 'Tests exist independently with no link to requirements. Coverage of requirements is unknown.' },
-      { score: 1, label: 'Informal', description: 'Developers intend to cover requirements but the mapping is not documented.' },
-      { score: 2, label: 'Defined',  description: 'Tests include requirement/spec references in their names or comments; coverage matrix exists.' },
-      { score: 3, label: 'Optimized',description: 'Requirement coverage is measured automatically; uncovered requirements block release.' },
+    "id": "C6-Q1",
+    "categoryId": 6,
+    "target": "repo",
+    "question": "AI支援変更に対して、CIで最低限の品質ゲートを通していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "CIがない、または手動実行のみ。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "CIはあるが、AI変更に必要な検査が不足している。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "lint、format、test、build等の基本ゲートをPRで実行している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "変更種別に応じた品質ゲートを自動選択し、失敗傾向も分析している。"
+      }
     ],
-    riskIfLow: 'Without test-to-requirement traceability, verification that the system meets its requirements relies on developer judgment rather than evidence.',
-    recommendation: 'Name or annotate tests with requirement IDs. Maintain a requirement-to-test mapping in the spec or test suite. Check for uncovered requirements in done-gate.',
-    issueTemplate: 'Establish requirement-to-test traceability: add requirement IDs to test names or annotations. Build coverage matrix.',
-    aiSelfCheck: 'When generating tests, reference the requirement or spec criterion being verified. Ensure each verification criterion from spec.md has at least one test.',
-  },
-
-  // ── Category 9: Agent Self-Audit ───────────────────────────────────────────
-  {
-    id: 'C9-Q1', categoryId: 9, target: 'ai',
-    question: 'Do AI agents perform a structured self-check before declaring any work complete, using a documented pre-completion protocol?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No self-check. AI agents declare completion based on subjective confidence.' },
-      { score: 1, label: 'Informal', description: 'AI agents sometimes list what they did but with no structured completion protocol.' },
-      { score: 2, label: 'Defined',  description: 'A completion protocol is documented in CLAUDE.md requiring: evidence, risks, unverified items, and human review needs.' },
-      { score: 3, label: 'Optimized',description: 'Pre-completion protocol is enforced; done-gate blocks AI from completing without all required sections.' },
-    ],
-    riskIfLow: 'Without a self-check protocol, AI agents claim completion based on "it runs" without verifying spec criteria, tests, security, or scope compliance.',
-    recommendation: 'Define a mandatory pre-completion protocol in CLAUDE.md. Require: changed items, evidence, verified items, unverified items, remaining risks, and human review needs.',
-    issueTemplate: 'Document pre-completion self-check protocol in CLAUDE.md. Require structured completion report from AI agents before any PR.',
-    aiSelfCheck: 'Before declaring work complete, complete the structured completion report: changed, evidence, verified, not verified, risks, human review needed.',
-  },
-  {
-    id: 'C9-Q2', categoryId: 9, target: 'ai',
-    question: 'Do AI agents consistently distinguish between confirmed facts (evidence-based), inferences (logical deductions), and assumptions (unconfirmed)?',
-    choices: [
-      { score: 0, label: 'None',     description: 'AI presents all statements as facts. No distinction between evidence, inference, and assumption.' },
-      { score: 1, label: 'Informal', description: 'Agents sometimes hedge but do not systematically label their epistemic status.' },
-      { score: 2, label: 'Defined',  description: 'Agents are required to label claims: VERIFIED / INFERRED / ASSUMED. Labels are checked in review.' },
-      { score: 3, label: 'Optimized',description: 'Assumption labeling is evaluated in agent eval; mislabeling is tracked as a quality defect.' },
-    ],
-    riskIfLow: 'AI agents presenting assumptions as facts leads reviewers to accept incorrect implementations, invented behaviors, and false guarantees.',
-    recommendation: 'Require agents to label every non-trivial claim: VERIFIED (tested), INFERRED (logical), ASSUMED (unconfirmed). Train reviewers to check labels.',
-    issueTemplate: 'Add assumption labeling requirement to CLAUDE.md. Update review checklist to verify labels. Track mislabeling incidents.',
-    aiSelfCheck: 'In every response, label claims: VERIFIED = you tested it, INFERRED = logical deduction, ASSUMED = not confirmed. Never present ASSUMED as VERIFIED.',
+    "riskIfLow": "AI変更が基本的な品質確認を通らずに混入します。",
+    "recommendation": "PR時のCIゲートを整備し、テスト・静的解析・ビルドを必須化してください。",
+    "issueTemplate": "PR品質ゲートを整備する：lint、format、test、build。",
+    "aiSelfCheck": "PR前に実行すべきCI相当コマンドを明示し、結果を報告する。"
   },
   {
-    id: 'C9-Q3', categoryId: 9, target: 'ai',
-    question: 'Do AI agents explicitly flag areas that require mandatory human review before the work can proceed or be merged?',
-    choices: [
-      { score: 0, label: 'None',     description: 'AI agents do not flag human review requirements. All decisions are made by the AI without escalation.' },
-      { score: 1, label: 'Informal', description: 'Agents occasionally mention uncertainty but do not formally flag human review requirements.' },
-      { score: 2, label: 'Defined',  description: 'Agents include a "Human Review Required" section in their completion reports for defined trigger conditions.' },
-      { score: 3, label: 'Optimized',description: 'Human review flags are tracked and their resolution rate is measured; recurring patterns improve the agent instructions.' },
+    "id": "C6-Q2",
+    "categoryId": 6,
+    "target": "repo",
+    "question": "秘密情報・認証情報の混入を、自動検査で防いでいますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "secret scanがなく、目視に依存している。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "一部ツールはあるが、PR必須ではない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "secret scanをPRまたはcommit hookで実行している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "検知時の封じ込め、鍵ローテーション、教育まで運用している。"
+      }
     ],
-    riskIfLow: 'AI agents that never escalate make consequential decisions (security, architecture, data) autonomously, bypassing human judgment on high-stakes items.',
-    recommendation: 'Define trigger conditions requiring human review: security changes, architecture modifications, external service integration, and data schema changes.',
-    issueTemplate: 'Define and document human-review trigger conditions. Add "Human Review Required" to agent completion template.',
-    aiSelfCheck: 'Flag the following for human review: security code, architecture changes, new dependencies, data migration, and anything that conflicts with existing ADRs.',
+    "riskIfLow": "AIがサンプルや推測で秘密情報に見える文字列を生成し、漏えい事故につながります。",
+    "recommendation": "secret scanを導入し、PR前の必須ゲートにしてください。",
+    "issueTemplate": "secret scanをCIまたはpre-commitへ追加する。",
+    "aiSelfCheck": "秘密情報、APIキー、トークン、個人情報を追加していないか確認する。"
   },
   {
-    id: 'C9-Q4', categoryId: 9, target: 'ai',
-    question: 'Do AI agents reliably work within their assigned scope and refrain from modifying files or systems outside that scope?',
-    choices: [
-      { score: 0, label: 'None',     description: 'Agents modify any file they judge relevant, regardless of declared scope.' },
-      { score: 1, label: 'Informal', description: 'Scope is communicated verbally but agents sometimes go beyond it when they see "improvements."' },
-      { score: 2, label: 'Defined',  description: 'Scope is written in the task definition; agents verify their changes match scope before completing.' },
-      { score: 3, label: 'Optimized',description: 'Scope compliance is verified by git diff at completion; out-of-scope changes are automatically flagged.' },
+    "id": "C6-Q3",
+    "categoryId": 6,
+    "target": "repo",
+    "question": "AIが生成した依存関係追加を、自動またはレビューで制御していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "AIが必要と判断した依存を追加できる。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "依存追加は見るが、基準は明確でない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "依存追加には理由、代替案、ライセンス、脆弱性確認を必須にしている。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "依存追加をCIで検出し、承認なしではマージできない。"
+      }
     ],
-    riskIfLow: 'Out-of-scope AI modifications create unexpected side effects in areas the developer did not intend to change, causing hard-to-trace bugs.',
-    recommendation: 'Require git diff review at task completion to verify all changes are within declared scope. Add scope compliance to done-gate.',
-    issueTemplate: 'Add scope compliance check to done-gate: review git diff against task scope declaration before PR creation.',
-    aiSelfCheck: 'Before submitting work, run git diff and verify every changed file is within your declared task scope. Flag out-of-scope changes and request permission.',
+    "riskIfLow": "不要な依存、脆弱性、ライセンス問題、保守負債が増えます。",
+    "recommendation": "依存追加ポリシーと検出ゲートを設定してください。",
+    "issueTemplate": "依存追加ルールを定義し、CIで変更検知する。",
+    "aiSelfCheck": "依存追加が必要な場合、理由・代替案・リスクを先に提示する。"
   },
   {
-    id: 'C9-Q5', categoryId: 9, target: 'ai',
-    question: 'Do AI agents avoid claiming successful execution, testing, or deployment without providing verifiable evidence of the outcome?',
-    choices: [
-      { score: 0, label: 'None',     description: 'AI regularly claims "tests pass" or "deployed successfully" without providing command output or evidence.' },
-      { score: 1, label: 'Informal', description: 'Agents sometimes provide evidence but often make completion claims without verification.' },
-      { score: 2, label: 'Defined',  description: 'Agent instructions prohibit unverified completion claims. Tested = command output shown. Deployed = URL or log provided.' },
-      { score: 3, label: 'Optimized',description: 'False completion claims are tracked as defects; their rate is measured and drives instruction improvement.' },
+    "id": "C6-Q4",
+    "categoryId": 6,
+    "target": "repo",
+    "question": "品質ゲートの失敗理由を記録し、AIへの指示改善に使っていますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "CI失敗を直すだけで、失敗傾向を残していない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "頻出失敗は認識しているが、指示には反映していない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "CI失敗を分類し、再発防止を指示ファイルへ反映している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "失敗傾向を定期集計し、テンプレート・チェックリスト・自動修正に展開している。"
+      }
     ],
-    riskIfLow: '"Tested" claims without evidence create false confidence that defects have been verified, leading to production incidents from untested code paths.',
-    recommendation: 'Prohibit "tested" / "works" / "deployed" claims without evidence. Require command output, test results, or accessible URL for verification.',
-    issueTemplate: 'Add to CLAUDE.md: prohibit completion claims without evidence. Define what evidence is required for: tested, verified, deployed.',
-    aiSelfCheck: 'Never say "tested" without showing test output. Never say "deployed" without a URL or log. Never say "works" without demonstrating the behavior.',
-  },
-
-  // ── Category 10: Metrics & Continuous Improvement ─────────────────────────
-  {
-    id: 'C10-Q1', categoryId: 10, target: 'human',
-    question: 'Does the team track key development metrics (cycle time, PR lead time, defect rate) that reflect the impact of AI-assisted development?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No metrics tracked. The impact of AI usage on development quality and speed is unknown.' },
-      { score: 1, label: 'Informal', description: 'Individual developers have a sense of pace but no formal metrics are collected.' },
-      { score: 2, label: 'Defined',  description: 'Core DORA metrics (or equivalent) are measured and visible to the team.' },
-      { score: 3, label: 'Optimized',description: 'Metrics are broken down by AI-assisted vs. human-only work to measure AI contribution to quality and speed.' },
-    ],
-    riskIfLow: 'Without metrics, teams cannot determine whether AI usage is improving quality and speed or masking technical debt accumulation.',
-    recommendation: 'Track at minimum: PR cycle time, defect escape rate, and rework ratio. Compare AI-assisted to baseline to quantify AI value.',
-    issueTemplate: 'Configure metrics tracking: PR lead time, defect rate, rework ratio. Create dashboard. Review monthly.',
-    aiSelfCheck: 'When reporting on your work, include metrics where available: how many tests added, what coverage increased to, how many issues were fixed. Quantify impact.',
-  },
-  {
-    id: 'C10-Q2', categoryId: 10, target: 'human',
-    question: 'Is AI-related rework tracked separately — identifying cases where AI-generated code required significant correction before being usable?',
-    choices: [
-      { score: 0, label: 'None',     description: 'Rework is not tracked. The cost of correcting AI mistakes is invisible and not improving.' },
-      { score: 1, label: 'Informal', description: 'Developers complain about AI rework informally but it is not measured.' },
-      { score: 2, label: 'Defined',  description: 'AI-related rework is labeled in retrospectives or issue trackers and reviewed monthly.' },
-      { score: 3, label: 'Optimized',description: 'Rework root causes are analyzed (bad instructions, wrong model, poor scope) and drive process changes.' },
-    ],
-    riskIfLow: 'Invisible AI rework means the team cannot justify or optimize AI investment — and the same mistakes recur because they are not measured.',
-    recommendation: 'Label rework issues with AI-cause tags. Track monthly rework ratio. Analyze root causes quarterly to target instruction improvements.',
-    issueTemplate: 'Add AI-rework tracking label to issue tracker. Add rework cause to retrospective template. Track monthly trend.',
-    aiSelfCheck: 'When you discover your previous output required correction, document the root cause: was it bad instruction, wrong assumption, or scope error?',
+    "riskIfLow": "同じCI失敗がAI作業ごとに繰り返されます。",
+    "recommendation": "CI失敗分類と指示ファイル更新ルールを作ってください。",
+    "issueTemplate": "CI失敗ログの分類・再発防止ループを作成する。",
+    "aiSelfCheck": "CI失敗時は、原因・修正・再発防止先を報告する。"
   },
   {
-    id: 'C10-Q3', categoryId: 10, target: 'human',
-    question: 'Does the team conduct regular retrospectives specifically analyzing AI-driven development process effectiveness?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No retrospectives. The team does not systematically reflect on AI development process effectiveness.' },
-      { score: 1, label: 'Informal', description: 'General retrospectives occur but AI process is not explicitly analyzed.' },
-      { score: 2, label: 'Defined',  description: 'Regular retrospectives include AI-specific items: what instructions worked, what failed, what to change.' },
-      { score: 3, label: 'Optimized',description: 'Retrospective learnings are recorded in lessons.md and fed back into agent instructions and process updates.' },
+    "id": "C6-Q5",
+    "categoryId": 6,
+    "target": "repo",
+    "question": "マージ前に、未確認事項・例外承認・残リスクが記録されますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "未確認事項が残っても暗黙的に進む。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "重要そうなものだけPRコメントに書く。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "未確認、例外承認、残リスクをPRテンプレートに記録している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "残リスクを次Issueや運用監視へ紐づけ、後追いできる。"
+      }
     ],
-    riskIfLow: 'Without retrospectives, AI-related friction, inefficiency, and recurring mistakes persist indefinitely because no learning loop exists.',
-    recommendation: 'Add AIDD-specific retrospective questions: Which agent instructions worked? Which caused errors? What would improve the next sprint?',
-    issueTemplate: 'Add AIDD retrospective section: instruction effectiveness, rework causes, metric trends, top improvement for next sprint.',
-    aiSelfCheck: 'At project milestones, produce a brief retrospective summary: what instructions were effective, what caused problems, what process change is recommended.',
+    "riskIfLow": "不確実性が隠れ、リリース後に問題化します。",
+    "recommendation": "PRテンプレートに未確認事項と残リスク欄を追加してください。",
+    "issueTemplate": "PRテンプレートに未確認事項・例外承認・残リスクを追加する。",
+    "aiSelfCheck": "マージ前に未確認事項が残っていないか、残る場合は承認状況を明記する。"
   },
   {
-    id: 'C10-Q4', categoryId: 10, target: 'ai',
-    question: 'Is AI model and prompt performance tracked over time so degradation or improvement can be detected when changes are made?',
-    choices: [
-      { score: 0, label: 'None',     description: 'No tracking. Model or prompt changes are made without knowing whether they improved or degraded output quality.' },
-      { score: 1, label: 'Informal', description: 'Qualitative impressions are shared ("it seems better") without measurement.' },
-      { score: 2, label: 'Defined',  description: 'Baseline scores exist for key tasks; prompt or model changes are compared against baseline before adoption.' },
-      { score: 3, label: 'Optimized',description: 'Performance tracking is automated; regressions in eval scores block adoption of prompt or model changes.' },
+    "id": "C7-Q1",
+    "categoryId": 7,
+    "target": "human",
+    "question": "AIへ入力してよい情報と入力禁止情報を定義していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "入力禁止情報の定義がなく、判断は個人任せ。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "機密情報は避ける認識はあるが、具体例がない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "顧客情報、個人情報、認証情報、未公開情報などの入力禁止を明記している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "ツールごとのデータ保持条件も考慮し、教育・監査を行っている。"
+      }
     ],
-    riskIfLow: 'Prompt or model changes that degrade quality are adopted without detection because no baseline exists to compare against.',
-    recommendation: 'Establish eval baselines for each AI-powered workflow. Compare scores before and after any prompt or model change. Require equal-or-better scores.',
-    issueTemplate: 'Create eval baselines for AI workflows. Build comparison process for prompt/model changes. Set minimum score threshold for changes.',
-    aiSelfCheck: 'When proposing prompt or instruction changes, note the current baseline performance. State what improvement is expected and how it will be verified.',
+    "riskIfLow": "機密情報・個人情報が外部AIへ投入されるリスクがあります。",
+    "recommendation": "AI入力禁止情報リストを作成し、具体例と判断に迷う場合の相談先を明記してください。",
+    "issueTemplate": "AI入力禁止情報リストを作成する。",
+    "aiSelfCheck": "プロンプトに機密情報・個人情報・認証情報が含まれていないか確認する。"
   },
   {
-    id: 'C10-Q5', categoryId: 10, target: 'human',
-    question: 'Are process improvement actions from retrospectives and metrics reviews actually implemented and verified to have had the intended effect?',
-    choices: [
-      { score: 0, label: 'None',     description: 'Process improvements are discussed but never formally tracked to completion.' },
-      { score: 1, label: 'Informal', description: 'Improvements are implemented ad hoc; whether they worked is never confirmed.' },
-      { score: 2, label: 'Defined',  description: 'Each improvement is tracked as an issue with a done criterion and a follow-up check after one sprint.' },
-      { score: 3, label: 'Optimized',description: 'Improvement effectiveness is measured with metrics; learnings from failed improvements are captured.' },
+    "id": "C7-Q2",
+    "categoryId": 7,
+    "target": "repo",
+    "question": "AI変更に対して、セキュリティ観点の静的解析や依存脆弱性確認を実行していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "セキュリティ検査をしていない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "一部ツールはあるが、AI変更と紐づいていない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "SAST、依存脆弱性、secret scanなどをPRで実行している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "検出結果をリスク評価し、例外承認と期限管理まで行っている。"
+      }
     ],
-    riskIfLow: 'Process discussion without verified improvement creates a retrospective theater effect — the team feels productive without actual change.',
-    recommendation: 'Track each improvement action as an issue with a success metric. Review effectiveness after one sprint cycle. Record learnings in lessons.md.',
-    issueTemplate: 'Establish improvement tracking: each retro action becomes an issue with a success metric and a follow-up review date.',
-    aiSelfCheck: 'When asked to apply a process improvement, confirm what the improvement is, how its effectiveness will be measured, and report outcome after one cycle.',
+    "riskIfLow": "AI生成コードに脆弱な実装や危険な依存が混入します。",
+    "recommendation": "SAST・依存脆弱性・secret scanを品質ゲートに入れてください。",
+    "issueTemplate": "AI変更向けセキュリティ検査をCIに追加する。",
+    "aiSelfCheck": "セキュリティに関わる変更を行う場合、実行した検査と結果を明記する。"
   },
+  {
+    "id": "C7-Q3",
+    "categoryId": 7,
+    "target": "human",
+    "question": "AIが生成したコードのライセンス・著作権リスクを確認していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "ライセンス観点で確認していない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "気になった場合だけ確認している。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "外部コード流用、依存ライセンス、生成物利用条件を確認している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "SBOMや依存ライセンス確認を自動化し、例外管理している。"
+      }
+    ],
+    "riskIfLow": "不適切なコード流用やライセンス違反が発生する可能性があります。",
+    "recommendation": "AI生成コードと依存関係のライセンス確認ルールを明文化してください。",
+    "issueTemplate": "AI生成物のライセンス確認ルールを作成する。",
+    "aiSelfCheck": "外部由来コードを含む可能性がある場合、出典・ライセンス・代替案を確認する。"
+  },
+  {
+    "id": "C7-Q4",
+    "categoryId": 7,
+    "target": "repo",
+    "question": "ログ・エラーメッセージ・レポートに個人情報や秘密情報が出力されないよう確認していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "出力内容の機密性を確認していない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "目視で気づいた範囲だけ確認する。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "ログ・エラー・レポートの機密情報出力をレビューしている。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "マスキング、検査、運用監視まで仕組み化している。"
+      }
+    ],
+    "riskIfLow": "AIが便利なログを追加し、意図せず機密情報を出力する可能性があります。",
+    "recommendation": "ログ出力基準とマスキングルールを整備してください。",
+    "issueTemplate": "ログ・エラー出力の機密情報チェックを追加する。",
+    "aiSelfCheck": "ログ追加時は、個人情報・秘密情報・業務機密が出ないか確認する。"
+  },
+  {
+    "id": "C7-Q5",
+    "categoryId": 7,
+    "target": "human",
+    "question": "AI利用に関する顧客・社内・契約上の制約を確認していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "契約・社内規定との整合を確認していない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "気になる案件だけ個別確認している。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "案件ごとにAI利用可否、入力可能情報、承認条件を確認している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "顧客・案件単位のAI利用条件を台帳化し、作業前に参照している。"
+      }
+    ],
+    "riskIfLow": "契約違反や顧客合意違反につながります。",
+    "recommendation": "案件別AI利用条件台帳を作成してください。",
+    "issueTemplate": "案件別AI利用条件台帳を作成する。",
+    "aiSelfCheck": "作業前に、この案件でAI利用が許可されているか確認する。"
+  },
+  {
+    "id": "C8-Q1",
+    "categoryId": 8,
+    "target": "repo",
+    "question": "要件・設計・実装・テスト・レビューが追跡できる形で紐づいていますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "紐づけがなく、変更の根拠を追えない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "一部チケットに記載されるが、形式がばらつく。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "Issue、PR、テスト、仕様の参照関係を記録している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "変更影響と検証状況を自動集計できる。"
+      }
+    ],
+    "riskIfLow": "AI変更の根拠や検証漏れが追えず、監査・引き継ぎが難しくなります。",
+    "recommendation": "Issue/PR/テスト/仕様の参照ルールを作ってください。",
+    "issueTemplate": "要件からテストまでのトレーサビリティルールを定義する。",
+    "aiSelfCheck": "変更理由と参照元要件・Issue・テストを明記する。"
+  },
+  {
+    "id": "C8-Q2",
+    "categoryId": 8,
+    "target": "repo",
+    "question": "AIが変更したファイルと変更理由を、PRやレポートで一覧化していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "変更ファイルの理由を記録していない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "主な変更だけ説明している。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "全変更ファイルに対して理由を記載している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "変更理由、影響範囲、確認結果を機械的に抽出できる形式で残している。"
+      }
+    ],
+    "riskIfLow": "レビュー担当が差分の意図を追えず、重要な変更を見逃します。",
+    "recommendation": "PRテンプレートにファイル別変更理由を追加してください。",
+    "issueTemplate": "ファイル別変更理由欄をPRテンプレートへ追加する。",
+    "aiSelfCheck": "変更ファイル一覧と理由を完了報告に含める。"
+  },
+  {
+    "id": "C8-Q3",
+    "categoryId": 8,
+    "target": "human",
+    "question": "AIとの会話・重要判断・承認内容を、後から参照できる形で残していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "会話履歴に依存し、成果物側には残していない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "重要そうなものだけメモしている。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "重要判断、前提、承認内容をIssue/ADR/README等へ転記している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "判断ログを構造化し、次回AIセッションが参照できる。"
+      }
+    ],
+    "riskIfLow": "AI会話の前提が消え、後続作業で判断を再現できません。",
+    "recommendation": "重要なAI会話内容はCURRENT_STATE.md、ADR、Issueへ転記してください。",
+    "issueTemplate": "AI会話の重要判断を永続文書へ残す運用を作る。",
+    "aiSelfCheck": "会話中の決定事項を成果物側へ反映してから完了する。"
+  },
+  {
+    "id": "C8-Q4",
+    "categoryId": 8,
+    "target": "repo",
+    "question": "AI支援変更のレビュー結果と修正対応が追跡できますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "レビュー指摘と修正が対応づけられていない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "PRコメント上では追えるが、完了基準は曖昧。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "指摘、対応方針、修正コミット、再確認結果を紐づけている。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "指摘種別を集計し、AI作業改善へ反映している。"
+      }
+    ],
+    "riskIfLow": "レビューで何が直ったのか、何が未対応なのか不明になります。",
+    "recommendation": "レビュー指摘管理の形式を定義し、対応状況を明確にしてください。",
+    "issueTemplate": "レビュー指摘と修正対応の追跡ルールを作る。",
+    "aiSelfCheck": "指摘対応時は、修正内容と再確認結果をセットで報告する。"
+  },
+  {
+    "id": "C8-Q5",
+    "categoryId": 8,
+    "target": "repo",
+    "question": "リリース後に、AI支援変更がどの機能・テスト・障害に関係したか追跡できますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "リリース後の追跡ができない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "PR単位では追えるが、機能・テスト・障害とは紐づかない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "リリースノートや変更履歴でAI支援変更を識別できる。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "障害・メトリクス・品質傾向とAI支援変更を関連分析できる。"
+      }
+    ],
+    "riskIfLow": "AI導入効果や事故傾向を評価できません。",
+    "recommendation": "AI支援変更をリリース情報へタグ付けしてください。",
+    "issueTemplate": "AI支援変更タグをリリースノート・Issueに追加する。",
+    "aiSelfCheck": "リリース対象にAI支援変更が含まれる場合、該当範囲と確認結果を明記する。"
+  },
+  {
+    "id": "C9-Q1",
+    "categoryId": 9,
+    "target": "ai",
+    "question": "AIエージェントが作業前に、前提・範囲・禁止事項を自己点検していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "作業前点検なしに実装を開始する。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "会話上で確認することはあるが、形式化されていない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "実装前チェックリストで、前提、範囲、禁止事項、テスト方針を確認している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "チェック結果を完了報告やPRに残し、漏れを改善している。"
+      }
+    ],
+    "riskIfLow": "AIが誤った前提で作業を始め、広範囲の手戻りが発生します。",
+    "recommendation": "Pre-Implementationチェックリストを導入してください。",
+    "issueTemplate": "実装前自己点検チェックリストを作成する。",
+    "aiSelfCheck": "作業開始前に、前提・範囲・禁止事項・検証方法を宣言する。"
+  },
+  {
+    "id": "C9-Q2",
+    "categoryId": 9,
+    "target": "ai",
+    "question": "AIエージェントが、事実・推定・未確認を分けて報告していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "推定を事実のように報告することがある。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "不確かなときだけ補足する。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "報告時に、確認済み、推定、未確認を分けて書いている。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "未確認事項を次アクションや人間判断へ自動的につなげている。"
+      }
+    ],
+    "riskIfLow": "未確認情報を前提に意思決定してしまいます。",
+    "recommendation": "報告フォーマットに確認済み/推定/未確認を入れてください。",
+    "issueTemplate": "AI報告フォーマットを整備する。",
+    "aiSelfCheck": "未確認の内容は「未確認」と明記し、確認方法を提示する。"
+  },
+  {
+    "id": "C9-Q3",
+    "categoryId": 9,
+    "target": "ai",
+    "question": "AIエージェントが完了宣言前に、変更差分・テスト結果・残リスクを自己点検していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "完了宣言が主観的で、証跡確認がない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "差分やテストを確認することはあるが、形式化されていない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "完了前に差分、テスト、未確認、残リスクを確認している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "完了前チェックが自動化・テンプレ化され、漏れが検出される。"
+      }
+    ],
+    "riskIfLow": "「完了」の品質が不安定になり、レビューで基本漏れが多発します。",
+    "recommendation": "Done Gateチェックリストを導入してください。",
+    "issueTemplate": "完了前自己点検チェックリストを作成する。",
+    "aiSelfCheck": "完了前に、変更差分・実行テスト・未確認事項・残リスクを報告する。"
+  },
+  {
+    "id": "C9-Q4",
+    "categoryId": 9,
+    "target": "ai",
+    "question": "AIエージェントがエラーや失敗時に、原因と再発防止を自分で整理していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "エラーを直すだけで、原因分析しない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "簡単な原因説明はするが、再発防止までは出さない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "原因、修正、影響範囲、再発防止を報告している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "失敗をlessons.mdや指示ファイル更新へつなげている。"
+      }
+    ],
+    "riskIfLow": "同じ失敗が繰り返され、AI活用の生産性が落ちます。",
+    "recommendation": "エラー時の報告テンプレートを作成してください。",
+    "issueTemplate": "エラー/失敗時の原因分析テンプレートを作成する。",
+    "aiSelfCheck": "失敗時は、原因・修正・再発防止・更新すべき文書を報告する。"
+  },
+  {
+    "id": "C9-Q5",
+    "categoryId": 9,
+    "target": "ai",
+    "question": "AIエージェントが、人間に確認すべき判断と自律的に進めてよい作業を区別していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "AIが自己判断で重要な変更を進める。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "迷ったときだけ確認する。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "承認要否の基準があり、設計変更、依存追加、範囲外変更では確認する。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "確認要否を作業前に判定し、記録として残している。"
+      }
+    ],
+    "riskIfLow": "AIが本来人間判断すべき変更を進め、事故や信頼低下につながります。",
+    "recommendation": "承認要否基準を定義し、エージェント指示へ追加してください。",
+    "issueTemplate": "AI作業の承認要否基準を作成する。",
+    "aiSelfCheck": "作業前に、人間承認が必要な判断が含まれるか確認する。"
+  },
+  {
+    "id": "C10-Q1",
+    "categoryId": 10,
+    "target": "human",
+    "question": "AI活用の成果を、開発速度だけでなく品質指標でも測定していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "AI活用効果を測定していない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "体感速度や作業時間だけを見ている。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "欠陥数、レビュー指摘、手戻り、テスト失敗など品質指標も見ている。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "速度・品質・リスク・学習効果を継続的に分析している。"
+      }
+    ],
+    "riskIfLow": "AIで速くなった一方、品質劣化に気づけません。",
+    "recommendation": "AI活用KPIに品質指標を含めてください。",
+    "issueTemplate": "AI活用KPIを定義する：速度、品質、手戻り、レビュー指摘、欠陥。",
+    "aiSelfCheck": "完了報告時に、品質面での効果・リスクも記載する。"
+  },
+  {
+    "id": "C10-Q2",
+    "categoryId": 10,
+    "target": "repo",
+    "question": "AI支援変更による欠陥・レビュー指摘・CI失敗を分類して蓄積していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "分類・蓄積していない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "個別には見ているが、傾向分析していない。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "欠陥種別、発生工程、検出工程、AI関与を記録している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "傾向からプロンプト、レビュー、テスト、自動化を改善している。"
+      }
+    ],
+    "riskIfLow": "AI活用の弱点が見えず、改善優先度を決められません。",
+    "recommendation": "AI関連欠陥メトリクスを管理してください。",
+    "issueTemplate": "AI関連欠陥・レビュー指摘・CI失敗の分類表を作成する。",
+    "aiSelfCheck": "自分の作業で発生した指摘や失敗は、分類できる形で報告する。"
+  },
+  {
+    "id": "C10-Q3",
+    "categoryId": 10,
+    "target": "human",
+    "question": "診断結果をもとに、改善Issueへ落とし込んで管理していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "診断しても改善タスク化しない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "重要そうなものだけ口頭で対応する。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "P1/P2など優先度を付け、Issue化して進捗管理している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "改善効果を再診断で確認し、ロードマップへ反映している。"
+      }
+    ],
+    "riskIfLow": "診断がイベントで終わり、現場の行動変化につながりません。",
+    "recommendation": "診断後に上位リスクをIssue化し、担当・期限・完了条件を設定してください。",
+    "issueTemplate": "診断結果から改善Issueを作成し、担当・期限・完了条件を設定する。",
+    "aiSelfCheck": "診断で見つかったリスクを、具体的なIssue案として提示する。"
+  },
+  {
+    "id": "C10-Q4",
+    "categoryId": 10,
+    "target": "human",
+    "question": "AI開発プロセスを定期的に再評価し、成熟度の推移を見ていますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "一度も再評価していない。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "必要に応じて不定期に見直す。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "月次または四半期で再診断し、前回との差分を確認している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "成熟度推移を改善ロードマップ・教育・標準化へつなげている。"
+      }
+    ],
+    "riskIfLow": "改善が定着したか分からず、形骸化します。",
+    "recommendation": "定期再診断と差分レビューの運用を設計してください。",
+    "issueTemplate": "四半期ごとのAIDD成熟度再診断を設定する。",
+    "aiSelfCheck": "改善後に、再診断で効果確認することを提案する。"
+  },
+  {
+    "id": "C10-Q5",
+    "categoryId": 10,
+    "target": "human",
+    "question": "AI活用の標準・テンプレート・ナレッジを、チーム外へ展開できる形で整備していますか。",
+    "choices": [
+      {
+        "score": 0,
+        "label": "未整備",
+        "description": "個人または一部チーム内に閉じている。"
+      },
+      {
+        "score": 1,
+        "label": "属人的",
+        "description": "共有はしているが、再利用しづらい。"
+      },
+      {
+        "score": 2,
+        "label": "定義済み",
+        "description": "標準テンプレート、手順、FAQ、事例を整備している。"
+      },
+      {
+        "score": 3,
+        "label": "運用定着",
+        "description": "複数チームで利用し、フィードバックを受けて継続改善している。"
+      }
+    ],
+    "riskIfLow": "個人依存のAI活用に留まり、組織能力になりません。",
+    "recommendation": "AIDD標準キットとして、テンプレート・手順・事例を整備してください。",
+    "issueTemplate": "AIDD標準キットを整備する：テンプレート、手順、FAQ、改善事例。",
+    "aiSelfCheck": "今回得た知見を、再利用可能なテンプレートや手順に反映する。"
+  }
 ];

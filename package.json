@@ -1,11 +1,11 @@
 {
-  "name": "aidd-qma",
+  "name": "aidd-process-next",
   "version": "0.1.0",
-  "description": "AI-Driven Development Quality Maturity Assessment — v0.1 Research-Gate Draft",
+  "description": "AI駆動開発プロセスの品質成熟度を診断する日本語B2B向けセルフアセスメントツール",
   "scripts": {
     "dev": "npx serve docs -l 3000",
     "start": "npx serve docs -l 3000"
   },
-  "keywords": ["aidd", "quality", "maturity", "assessment", "ai-development"],
+  "keywords": ["aidd", "quality", "maturity", "assessment", "ai-development", "qa"],
   "license": "TBD"
 }

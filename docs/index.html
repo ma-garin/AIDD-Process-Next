@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIDD-QMA — AI-Driven Development Quality Maturity Assessment</title>
-  <meta name="description" content="Assess and improve the quality maturity of your AI-assisted software development process across 10 diagnostic areas.">
+  <title>AIDD Process Next — AI駆動開発 品質成熟度アセスメント</title>
+  <meta name="description" content="AI駆動開発プロセスの品質成熟度を、10領域・50問で自己診断し、改善IssueとAIエージェント向け自己点検プロンプトを生成します。">
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -15,42 +15,42 @@
   <div id="screen-welcome" class="screen active">
     <div class="welcome-container">
       <div class="welcome-hero">
-        <div class="product-badge">v0.1 · Research-Gate Draft</div>
-        <h1 class="product-title">AIDD-QMA</h1>
-        <p class="product-subtitle">AI-Driven Development<br>Quality Maturity Assessment</p>
+        <div class="product-badge">v0.1 · 検証前ドラフト</div>
+        <h1 class="product-title">AIDD Process Next</h1>
+        <p class="product-subtitle">AI駆動開発<br>品質成熟度アセスメント</p>
         <p class="product-desc">
-          Assess and improve the quality maturity of your AI-assisted development process.
-          Evaluates human discipline, AI agent behavior, and repository evidence across 10 areas.
+          AIを使った開発が「属人的・場当たり的」になっていないかを確認し、
+          人・AIエージェント・リポジトリ証跡の3視点から改善課題を整理します。
         </p>
         <div class="project-name-row">
-          <label for="project-name-input">Project:</label>
-          <input id="project-name-input" type="text" placeholder="Enter project name (optional)" maxlength="100">
+          <label for="project-name-input">対象プロジェクト</label>
+          <input id="project-name-input" type="text" placeholder="例：顧客ポータル刷新PJ（任意）" maxlength="100">
         </div>
         <div class="welcome-actions">
-          <button class="btn btn-primary" onclick="App.startFresh()">Start Assessment</button>
-          <button class="btn btn-secondary" onclick="App.loadSample()">Load Sample Data</button>
+          <button class="btn btn-primary" onclick="App.startFresh()">診断を開始</button>
+          <button class="btn btn-secondary" onclick="App.loadSample()">サンプルで確認</button>
         </div>
       </div>
 
       <div class="welcome-info">
         <div class="info-card">
-          <span class="info-icon" aria-hidden="true">🔒</span>
+          <span class="info-icon" aria-hidden="true">守</span>
           <div>
-            <strong>Privacy Notice</strong>
-            <p>No assessment data is transmitted externally. All data remains in your browser. Do not enter secrets, credentials, or personal information.</p>
+            <strong>情報の扱い</strong>
+            <p>入力内容は外部送信されません。ブラウザ内で処理します。機密情報・認証情報・個人情報は入力しないでください。</p>
           </div>
         </div>
         <div class="info-card">
-          <span class="info-icon" aria-hidden="true">⚠️</span>
+          <span class="info-icon" aria-hidden="true">暫</span>
           <div>
-            <strong>Research-Gate Draft</strong>
-            <p>This model is provisional. The 300-source evidence review has not been completed. Scores are indicative, not normative.</p>
+            <strong>ドラフト扱い</strong>
+            <p>本モデルは検証前です。300件規模の根拠レビュー完了までは、認証・監査基準ではなく改善のたたき台として扱います。</p>
           </div>
         </div>
       </div>
 
       <div class="welcome-areas">
-        <h3>10 Diagnostic Areas</h3>
+        <h3>診断領域（10領域）</h3>
         <div class="area-grid" id="welcome-areas"></div>
       </div>
     </div>
@@ -58,16 +58,16 @@
 
   <!-- ── ASSESSMENT ──────────────────────────────────────────────────────── -->
   <div id="screen-assessment" class="screen">
-    <aside class="sidebar" role="navigation" aria-label="Category navigation">
+    <aside class="sidebar" role="navigation" aria-label="診断カテゴリナビゲーション">
       <div class="sidebar-header">
-        <button class="back-btn" onclick="App.goTo('welcome')" aria-label="Back to welcome">← Back</button>
+        <button class="back-btn" onclick="App.goTo('welcome')" aria-label="トップへ戻る">← トップへ戻る</button>
         <span class="progress-label" aria-live="polite">
-          <span id="total-answered">0</span> / <span id="total-questions">50</span> answered
+          回答済み <span id="total-answered">0</span> / <span id="total-questions">50</span>
         </span>
       </div>
-      <nav class="category-nav" id="category-nav" aria-label="Diagnostic categories"></nav>
+      <nav class="category-nav" id="category-nav" aria-label="診断カテゴリ"></nav>
       <div class="sidebar-footer">
-        <button class="btn btn-primary btn-block" onclick="App.viewResults()">View Results</button>
+        <button class="btn btn-primary btn-block" onclick="App.viewResults()">結果を見る</button>
       </div>
     </aside>
 
@@ -76,7 +76,7 @@
         <span class="category-number" id="cat-number" aria-hidden="true">1</span>
         <div>
           <h2 class="category-title" id="cat-title"></h2>
-          <div class="category-progress" role="progressbar" aria-label="Category progress">
+          <div class="category-progress" role="progressbar" aria-label="カテゴリ進捗">
             <div class="progress-bar">
               <div class="progress-fill" id="cat-progress-fill" style="width:0%"></div>
             </div>
@@ -91,21 +91,21 @@
           <span class="question-target-badge" id="q-target"></span>
         </div>
         <h3 class="question-text" id="q-text"></h3>
-        <fieldset class="choices" id="q-choices" aria-label="Answer choices">
-          <legend class="sr-only">Select a score level</legend>
+        <fieldset class="choices" id="q-choices" aria-label="回答選択肢">
+          <legend class="sr-only">成熟度レベルを選択</legend>
         </fieldset>
         <div class="question-na">
           <label class="na-label">
             <input type="checkbox" id="q-na">
-            Not applicable to this project
+            このプロジェクトでは対象外
           </label>
         </div>
         <div class="risk-preview" id="risk-preview" role="alert" aria-live="polite"></div>
       </div>
 
       <div class="question-nav">
-        <button class="btn btn-outline" id="prev-btn" onclick="App.prevQuestion()">← Previous</button>
-        <button class="btn btn-primary" id="next-btn" onclick="App.nextQuestion()">Next →</button>
+        <button class="btn btn-outline" id="prev-btn" onclick="App.prevQuestion()">← 前へ</button>
+        <button class="btn btn-primary" id="next-btn" onclick="App.nextQuestion()">次へ →</button>
       </div>
     </main>
   </div>
@@ -113,11 +113,11 @@
   <!-- ── RESULTS ─────────────────────────────────────────────────────────── -->
   <div id="screen-results" class="screen">
     <header class="results-header">
-      <button class="back-btn" onclick="App.goTo('assessment')" aria-label="Back to assessment">← Back to Assessment</button>
+      <button class="back-btn" onclick="App.goTo('assessment')" aria-label="診断へ戻る">← 診断へ戻る</button>
       <div class="results-title-group">
-        <h1>Assessment Results</h1>
+        <h1>診断結果</h1>
         <div class="results-actions">
-          <button class="btn btn-primary" onclick="App.goTo('report')">View Report</button>
+          <button class="btn btn-primary" onclick="App.goTo('report')">レポートを見る</button>
         </div>
       </div>
     </header>
@@ -130,19 +130,19 @@
           <div class="maturity-desc" id="maturity-desc"></div>
         </div>
         <div class="chart-card">
-          <h3>Category Scores</h3>
+          <h3>カテゴリ別スコア</h3>
           <div class="chart-wrapper">
-            <div id="radar-chart" role="img" aria-label="Radar chart of category scores"></div>
+            <div id="radar-chart" role="img" aria-label="カテゴリ別スコアのレーダーチャート"></div>
           </div>
         </div>
       </div>
       <div class="results-side">
         <div class="risks-card">
-          <h3>High-Risk Areas</h3>
+          <h3>優先リスク</h3>
           <div id="risks-list"></div>
         </div>
         <div class="issues-card">
-          <h3>Improvement Issues</h3>
+          <h3>改善Issue案</h3>
           <div id="issues-list"></div>
         </div>
       </div>
@@ -154,13 +154,13 @@
   <!-- ── REPORT ──────────────────────────────────────────────────────────── -->
   <div id="screen-report" class="screen">
     <header class="report-header">
-      <button class="back-btn" onclick="App.goTo('results')" aria-label="Back to results">← Back to Results</button>
+      <button class="back-btn" onclick="App.goTo('results')" aria-label="結果へ戻る">← 結果へ戻る</button>
       <div class="report-title-group">
-        <h1>Assessment Report</h1>
+        <h1>診断レポート</h1>
         <div class="report-actions">
-          <button class="btn btn-outline" onclick="App.copyReport()">⧉ Copy Markdown</button>
+          <button class="btn btn-outline" onclick="App.copyReport()">⧉ Markdownをコピー</button>
           <span class="copy-feedback" id="report-copy-feedback" aria-live="polite"></span>
-          <button class="btn btn-outline" onclick="window.print()">⎙ Print / PDF</button>
+          <button class="btn btn-outline" onclick="window.print()">⎙ 印刷 / PDF</button>
         </div>
       </div>
     </header>
@@ -168,27 +168,27 @@
     <div class="report-layout">
       <div class="report-main">
         <div class="report-section">
-          <h3>Markdown Report — <span id="report-project-name"></span> <small id="report-score-summary"></small></h3>
+          <h3>Markdownレポート — <span id="report-project-name"></span> <small id="report-score-summary"></small></h3>
           <div class="report-copy-bar">
-            <button class="btn-icon-copy" onclick="App.copyReport()">⧉ Copy</button>
+            <button class="btn-icon-copy" onclick="App.copyReport()">⧉ コピー</button>
           </div>
-          <pre id="report-content" class="report-pre" aria-label="Markdown report content"></pre>
+          <pre id="report-content" class="report-pre" aria-label="Markdownレポート本文"></pre>
         </div>
       </div>
 
       <div class="report-side">
         <div class="selfcheck-section">
-          <h3>AI Agent Self-Check Prompts</h3>
-          <p class="selfcheck-desc">Paste the prompt below into Claude Code, Codex, Cursor, or any coding agent.</p>
-          <div class="selfcheck-tabs" id="selfcheck-tabs" role="tablist" aria-label="Self-check phases">
-            <button class="tab-btn active" data-tab="pre-impl"  role="tab" aria-selected="true">Pre-Implementation</button>
-            <button class="tab-btn"        data-tab="pre-pr"    role="tab" aria-selected="false">Pre-PR</button>
-            <button class="tab-btn"        data-tab="pre-merge" role="tab" aria-selected="false">Pre-Merge</button>
+          <h3>AIエージェント自己点検プロンプト</h3>
+          <p class="selfcheck-desc">Claude Code、Codex、Cursorなどのコーディングエージェントへ貼り付けて使います。</p>
+          <div class="selfcheck-tabs" id="selfcheck-tabs" role="tablist" aria-label="自己点検フェーズ">
+            <button class="tab-btn active" data-tab="pre-impl"  role="tab" aria-selected="true">実装前</button>
+            <button class="tab-btn"        data-tab="pre-pr"    role="tab" aria-selected="false">PR前</button>
+            <button class="tab-btn"        data-tab="pre-merge" role="tab" aria-selected="false">マージ前</button>
           </div>
           <div class="selfcheck-prompt-container">
-            <button class="btn-icon-copy selfcheck-copy" onclick="App.copySelfCheck()" aria-label="Copy prompt to clipboard">⧉ Copy</button>
+            <button class="btn-icon-copy selfcheck-copy" onclick="App.copySelfCheck()" aria-label="プロンプトをコピー">⧉ コピー</button>
             <span class="copy-feedback" id="selfcheck-copy-feedback" aria-live="polite"></span>
-            <pre id="selfcheck-prompt" class="selfcheck-pre" aria-label="AI self-check prompt"></pre>
+            <pre id="selfcheck-prompt" class="selfcheck-pre" aria-label="AI自己点検プロンプト"></pre>
           </div>
         </div>
       </div>
@@ -197,7 +197,6 @@
 
 </div><!-- #app -->
 
-<!-- Scripts: data → logic → app (dependency order) -->
 <script src="data/questions.js"></script>
 <script src="data/sample-answers.js"></script>
 <script src="js/scoring.js"></script>

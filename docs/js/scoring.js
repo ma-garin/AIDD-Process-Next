@@ -1,16 +1,16 @@
 /* scoring.js — Pure scoring functions. Same input → same output, no side effects.
- * Scoring model is provisional pending 300-source evidence review (sqec.md §8.2).
+ * Scoring model is provisional pending the evidence review described in agent.md / sqec.md.
  */
 
 const LEVEL_CONFIG = [
-  { min: 75, level: 3, name: 'Lv.3 Optimized',    icon: '✓', cssClass: 'lv3',
-    description: 'Metrics-driven, self-auditing, continuously improving AI development process.' },
-  { min: 50, level: 2, name: 'Lv.2 Systemized',   icon: '○', cssClass: 'lv2',
-    description: 'Repeatable, defined processes with consistent quality gates and traceability.' },
-  { min: 25, level: 1, name: 'Lv.1 Managed',      icon: '△', cssClass: 'lv1',
-    description: 'Basic rules and human review exist but practices are inconsistent or informal.' },
-  { min: 0,  level: 0, name: 'Lv.0 Uncontrolled', icon: '✗', cssClass: 'lv0',
-    description: 'AI use is ad hoc, undocumented, and weakly reviewed. Significant risk exposure.' },
+  { min: 75, level: 3, name: 'Lv.3 最適化', icon: '✓', cssClass: 'lv3',
+    description: 'AI開発プロセスが指標・証跡・自己監査に基づいて継続改善されている状態です。' },
+  { min: 50, level: 2, name: 'Lv.2 仕組み化', icon: '○', cssClass: 'lv2',
+    description: '反復可能なルール、品質ゲート、トレーサビリティが整備され、一定の再現性があります。' },
+  { min: 25, level: 1, name: 'Lv.1 管理開始', icon: '△', cssClass: 'lv1',
+    description: '基本ルールと人間レビューはありますが、運用は属人的・不安定です。' },
+  { min: 0,  level: 0, name: 'Lv.0 未統制', icon: '✗', cssClass: 'lv0',
+    description: 'AI利用が場当たり的で、文書化・レビュー・責任分界が弱い状態です。' },
 ];
 
 function calcCategoryScore(categoryId, answers) {
@@ -40,7 +40,7 @@ function determineLevel(totalScore) {
 }
 
 function determineLevelForScore(score) {
-  if (score === null) return { name: 'N/A', icon: '—', cssClass: 'na', level: -1 };
+  if (score === null) return { name: '対象外', icon: '—', cssClass: 'na', level: -1 };
   return determineLevel(score);
 }
 
@@ -59,7 +59,7 @@ function buildResults(answers, projectName) {
   const level = determineLevel(totalScore);
   const risks = getRisks(answers);
   return {
-    projectName: projectName || '[Project Name]',
+    projectName: projectName || '対象プロジェクト未入力',
     answers,
     categoryScores,
     totalScore,
@@ -122,74 +122,74 @@ function generateMarkdownReport(results) {
   const date = new Date().toISOString().split('T')[0];
   const catRows = results.categoryScores.map(s => {
     const lv = determineLevelForScore(s.score);
-    return `| ${s.name} | ${s.score !== null ? s.score + '/100' : 'N/A'} | ${lv.icon} ${lv.name} |`;
+    return `| ${s.name} | ${s.score !== null ? s.score + '/100' : '対象外'} | ${lv.icon} ${lv.name} |`;
   }).join('\n');
 
   const riskRows = results.risks.slice(0, 10).map(r => {
     const catName = CATEGORIES.find(c => c.id === r.categoryId)?.name || '';
-    return `| ${r.severity === 'critical' ? '🔴 Critical' : '🟡 High'} | ${catName} | ${r.question} |`;
+    return `| ${r.severity === 'critical' ? '重大' : '高'} | ${catName} | ${r.question} | ${r.recommendation} |`;
   }).join('\n');
 
   const issueList = results.issues.map(issue =>
-    `### [${issue.priority}] ${issue.title}\n- Category: ${issue.category}\n- Current Score: ${issue.score}/3`
+    `### [${issue.priority}] ${issue.title}\n- 領域: ${issue.category}\n- 現在スコア: ${issue.score}/3`
   ).join('\n\n');
 
   const totalAnswered = getAnsweredCount(results.answers);
   const completionPct = Math.round((totalAnswered / QUESTIONS.length) * 100);
 
-  return `# AIDD-QMA Assessment Report
+  return `# AIDD Process Next 診断レポート
 
-**Project:** ${results.projectName}
-**Date:** ${date}
-**Completion:** ${totalAnswered}/${QUESTIONS.length} questions answered (${completionPct}%)
+**対象プロジェクト:** ${results.projectName}  
+**診断日:** ${date}  
+**回答率:** ${totalAnswered}/${QUESTIONS.length}問（${completionPct}%）
 
 ---
 
-## Overall Result
+## 総合結果
 
-| Metric | Value |
+| 指標 | 値 |
 |---|---|
-| Total Score | **${results.totalScore}/100** |
-| Maturity Level | **${results.level.icon} ${results.level.name}** |
-| High-Risk Areas | ${results.risks.filter(r => r.severity === 'critical').length} Critical, ${results.risks.filter(r => r.severity === 'high').length} High |
+| 総合スコア | **${results.totalScore}/100** |
+| 成熟度 | **${results.level.icon} ${results.level.name}** |
+| 優先リスク | 重大 ${results.risks.filter(r => r.severity === 'critical').length}件 / 高 ${results.risks.filter(r => r.severity === 'high').length}件 |
 
 > ${results.level.description}
 
 ---
 
-## Category Scores
+## カテゴリ別スコア
 
-| Category | Score | Level |
+| 領域 | スコア | レベル |
 |---|---|---|
 ${catRows}
 
 ---
 
-## High-Risk Areas
+## 優先リスク
 
-| Severity | Category | Finding |
-|---|---|---|
-${riskRows || '| — | — | No high-risk areas identified. |'}
-
----
-
-## Improvement Issues
-
-${issueList || '*No improvement issues generated (no scores ≤ 1).*'}
+| 重要度 | 領域 | 所見 | 推奨対応 |
+|---|---|---|---|
+${riskRows || '| — | — | 優先リスクは検出されませんでした。 | — |'}
 
 ---
 
-## Next Steps
+## 改善Issue案
 
-1. Address Critical (P1) issues first — these represent the highest risk exposure.
-2. Review the AI Agent Self-Check Prompts section for immediate agent guardrails.
-3. Re-assess in 4-6 weeks after implementing top improvements.
-4. Track improvement trend over time using the delta view.
+${issueList || '*スコア1以下の項目がないため、改善Issue案は生成されませんでした。*'}
 
 ---
 
-*Generated by AIDD-QMA v0.1 — Research-Gate Draft.*
-*Scoring model is provisional pending 300-source evidence review (sqec.md §8.2).*
+## 次アクション
+
+1. P1（重大）を最優先でIssue化し、担当・期限・完了条件を決める。
+2. AIエージェント自己点検プロンプトをAGENTS.md / CLAUDE.mdへ反映する。
+3. 4〜6週間後に再診断し、スコア差分と残リスクを確認する。
+4. 改善結果をテンプレート、レビュー観点、品質ゲートへ展開する。
+
+---
+
+*Generated by AIDD Process Next v0.1 — 検証前ドラフト。*  
+*スコアリングモデルは、300件規模の根拠レビュー完了まで暫定扱いです。*
 `;
 }
 
@@ -198,101 +198,90 @@ function generateSelfCheckPrompt(phase, results) {
     .map(r => `- [${r.severity.toUpperCase()}] ${r.question}`)
     .join('\n');
 
-  if (phase === 'pre-impl') return `## AIDD-QMA Pre-Implementation Self-Check
+  if (phase === 'pre-impl') return `## AIDD Process Next 実装前セルフチェック
 
-**Project Score:** ${results.totalScore}/100 (${results.level.name})
+**プロジェクトスコア:** ${results.totalScore}/100（${results.level.name}）
 
-Before starting implementation, verify each item. Do not proceed until all blockers are resolved.
+実装前に以下を確認してください。ブロッカーが残る場合は作業を開始しないでください。
 
-### Known High-Risk Areas for This Project
-${riskLines || '- No critical risks identified in assessment.'}
+### このプロジェクトの優先リスク
+${riskLines || '- 診断上の重大リスクはありません。'}
 
-### Checklist
-- [ ] I have read the latest AGENTS.md / CLAUDE.md for this project.
-- [ ] I have identified ALL files I will change and confirmed they are in scope.
-- [ ] I have confirmed the spec, requirement, or task I am implementing exists in writing.
-- [ ] I can state what "done" looks like in terms of verifiable, observable behavior.
-- [ ] I have identified what tests will verify my implementation.
-- [ ] I have separated facts I know from assumptions I am making — and labeled them.
-- [ ] I have identified any security-sensitive areas in my scope (auth, data, secrets).
+### チェックリスト
+- [ ] 最新のAGENTS.md / CLAUDE.md / CURRENT_STATE.mdを読んだ。
+- [ ] 変更する全ファイルを特定し、スコープ内であることを確認した。
+- [ ] 仕様、要件、Issue、タスクのいずれかに作業根拠がある。
+- [ ] 完了条件を、観察可能・検証可能な形で説明できる。
+- [ ] どのテスト・確認で完了を判断するか決めた。
+- [ ] 事実、推定、未確認事項を分けた。
+- [ ] 認証、データ、秘密情報などのセキュリティ影響を確認した。
 
-### Required Statement Before Starting
-State one of:
-- PROCEED: All checklist items verified. Scope is clear. Starting implementation.
-- BLOCKED: [State specific item] is not clear. Requesting human clarification before proceeding.
+### 開始前の宣言
+次のいずれかで回答してください。
+- PROCEED: 全項目を確認済み。スコープは明確。実装を開始する。
+- BLOCKED: [具体項目] が不明。人間の確認が必要。
 `;
 
-  if (phase === 'pre-pr') return `## AIDD-QMA Pre-PR Self-Check
+  if (phase === 'pre-pr') return `## AIDD Process Next PR前セルフチェック
 
-**Project Score:** ${results.totalScore}/100 (${results.level.name})
+**プロジェクトスコア:** ${results.totalScore}/100（${results.level.name}）
 
-Before creating a PR, verify every item. Do not create PR until blockers are resolved.
+PR作成前に以下を確認してください。未確認が残る場合はPR本文に明記してください。
 
-### Evidence Requirements
-- [ ] List every file changed and the reason for each change.
-- [ ] State the requirement, issue ID, or task ID this PR implements.
-- [ ] Confirm no files outside declared scope were modified (verify with git diff).
-- [ ] Tests were added or updated to cover changed behavior.
-- [ ] All existing tests pass (show command output).
-- [ ] No hardcoded secrets, credentials, or PII were introduced.
-- [ ] CI lint and format checks pass.
+### 証跡要件
+- [ ] 変更した全ファイルと変更理由を列挙した。
+- [ ] 対応した仕様、Issue ID、タスクIDを記載した。
+- [ ] 宣言したスコープ外のファイルを変更していないことをgit diffで確認した。
+- [ ] 変更挙動を確認するテストを追加または更新した。
+- [ ] 既存テストを実行し、結果を記録した。
+- [ ] 秘密情報、認証情報、個人情報を追加していない。
+- [ ] lint、format、build、CI相当の確認結果を記録した。
 
-### AI Contribution Disclosure
-- [ ] I am disclosing which parts of this PR are AI-generated.
-- [ ] AI-generated code has been reviewed by a human, not just read.
-- [ ] I have verified AI assumptions — not just accepted them.
-- [ ] I am not claiming "tested" for code I have not run.
+### AI支援の開示
+- [ ] AIが生成・修正した範囲を明記した。
+- [ ] AI生成コードを人間がレビュー可能な粒度に分割した。
+- [ ] AIの前提・推定を検証した。
+- [ ] 実行していない確認を「確認済み」と書いていない。
 
-### Required Completion Report Format
+### 完了報告フォーマット
 \`\`\`
-## Completion Report
+## 完了報告
 
-### Changed
+### 変更内容
 - [file] — [reason]
 
-### Evidence
+### 証跡
 - Tests: [command and result]
-- Spec criteria met: [spec ref or "n/a"]
+- Spec criteria met: [spec ref or n/a]
 
-### Verified
-- [what was confirmed with evidence]
+### 確認済み
+- [evidence]
 
-### Not Verified
-- [what was not tested — be explicit]
+### 未確認
+- [not verified / reason]
 
-### Risks
-- [remaining risks or "none identified"]
-
-### Human Review Needed
-- [specific items or "none"]
+### 残リスク
+- [risk / mitigation]
 \`\`\`
 `;
 
-  return `## AIDD-QMA Pre-Merge Self-Check
+  return `## AIDD Process Next マージ前セルフチェック
 
-**Project Score:** ${results.totalScore}/100 (${results.level.name})
+**プロジェクトスコア:** ${results.totalScore}/100（${results.level.name}）
 
-Before approving a merge, every item must be verified. Blockers must be resolved before merge.
+マージ前に以下を確認してください。例外がある場合は承認者と理由を記録してください。
 
-### Quality Gate Verification
-- [ ] CI is passing (all checks green).
-- [ ] Required reviewer has approved with substantive review (not rubber-stamp).
-- [ ] PR description includes the completion report with evidence.
-- [ ] No unresolved review comments remain.
-- [ ] No TODO/FIXME markers were introduced in this PR.
-- [ ] Breaking changes are documented and communicated.
-- [ ] Dependent services, configurations, or documentation are updated.
+### マージ条件
+- [ ] P1/P2指摘が未対応のまま残っていない。
+- [ ] CI、テスト、ビルド、静的解析の結果を確認した。
+- [ ] レビュー指摘への対応と再確認結果を記録した。
+- [ ] 未確認事項がPR本文またはIssueに残っている。
+- [ ] リリース後に追跡すべき残リスクがある場合、別Issue化した。
+- [ ] AI支援変更として追跡できるタグ・記録を残した。
 
-### AI-Specific Merge Checklist
-- [ ] AI-generated code sections are identified and received additional scrutiny.
-- [ ] AI completion claims were verified with evidence — not taken on trust.
-- [ ] No licensed or proprietary content was copied by the AI.
-- [ ] AI-generated code does not introduce security regressions.
-- [ ] Database or schema changes are reversible or migration-tested.
-
-### Merge Authorization
-State one of:
-- APPROVED: All checklist items verified. I accept responsibility for this merge.
-- BLOCKED: [state specific item] is not verified. Merge is blocked until resolved.
+### 判断
+次のいずれかで回答してください。
+- MERGE_READY: マージ条件を満たしている。
+- HOLD: [理由] によりマージ保留。
 `;
 }

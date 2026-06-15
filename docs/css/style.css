@@ -420,3 +420,70 @@ body {
   .cat-nav-item.active { border-bottom-color: var(--color-info); border-left-color: transparent; }
   .assessment-main { height: auto; overflow: visible; }
 }
+
+/* ── Japanese B2B refinement layer ───────────────────────────────────────── */
+body {
+  letter-spacing: .01em;
+  background:
+    linear-gradient(180deg, #F7F8FA 0%, var(--color-bg) 280px),
+    var(--color-bg);
+}
+
+.welcome-container { max-width: 1040px; }
+.welcome-hero {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 5px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--sp-10) var(--sp-8);
+}
+.product-badge {
+  border-radius: var(--radius-sm);
+  letter-spacing: .04em;
+  background: var(--color-neutral-bg);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
+}
+.product-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  letter-spacing: -.02em;
+}
+.product-subtitle {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+.product-desc { line-height: 1.9; }
+
+.info-icon {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: var(--text-sm); font-weight: 800;
+  color: var(--color-primary);
+  background: var(--color-neutral-bg);
+  border: 1px solid var(--color-border);
+}
+
+.area-chip { min-height: 56px; }
+.area-number { border-radius: var(--radius-sm); }
+.area-name { line-height: 1.45; }
+
+.sidebar { background: #FBFCFD; }
+.cat-nav-item.active { background: #EAF2F7; }
+.category-number { border-radius: var(--radius-sm); }
+.question-card, .maturity-card, .chart-card, .risks-card, .issues-card, .selfcheck-section {
+  border-color: #D6DDE5;
+}
+.question-target-badge[data-target="human"] { background: #F3F0EA; color: #6B4E1F; }
+.question-target-badge[data-target="ai"]    { background: #EDF6F2; color: #1E6B4A; }
+.question-target-badge[data-target="repo"]  { background: #EEF6FB; color: #1F5C8A; }
+.choice-label.selected {
+  border-color: var(--color-primary);
+  box-shadow: inset 4px 0 0 var(--color-primary);
+}
+
+.selfcheck-pre {
+  background: #17202A;
+  color: #EDF2F7;
+}

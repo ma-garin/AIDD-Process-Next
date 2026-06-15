@@ -1,465 +1,122 @@
-# agent.md
+# agent.md — AIDD Process Next 開発・運用指示書
 
-# AIDD-QMA Agent Operating Manual
+## 1. 目的
 
-Version: 0.1 / Research-Gate Draft  
-Status: Draft. This file defines how AI agents and outsourced developers must work on AIDD-QMA. It is not the final research-backed product specification until the required evidence review is complete.
+AIDD Process Next は、AI駆動開発における品質成熟度を診断し、改善IssueとAIエージェント自己点検プロンプトへ変換するためのセルフアセスメントツールです。
 
----
-
-## 1. Purpose
-
-AIDD-QMA stands for **AI-Driven Development Quality Maturity Assessment**.
-
-This project creates a maturity assessment model and web tool for AI-driven software development. The tool evaluates the quality, control, reproducibility, reviewability, security, and improvement capability of a development system where humans and AI agents both participate in software delivery.
-
-The goal is not to clone TPI NEXT, Agile TPI, QA4AIDD, NIST AI RMF, OWASP, ISTQB CT-AI, DORA, or any existing framework. These sources are used as research inputs. AIDD-QMA must become an original model focused on the quality engineering of AI-driven development.
+対象は日本のQAエンジニア、QAリード、PM、開発リーダー、AI導入推進者です。派手な生成AIデモではなく、現場の改善・レビュー・品質保証に使える業務ツールとして扱います。
 
 ---
 
-## 2. Non-Negotiable Principles
+## 2. プロダクト原則
 
-1. Do not claim that research is complete unless the evidence matrix proves it.
-2. Do not claim that 150 TPI-related sources or 150 AIDD-related sources have been reviewed unless those sources are listed, categorized, and summarized.
-3. Do not reuse proprietary TPI NEXT, Agile TPI, QA4AIDD, or certification-material content as if it were original work.
-4. Do not use the term `TPI` in the external product name.
-5. Treat `TPI`, `TPI NEXT`, and `Agile TPI` as reference concepts only.
-6. Treat `QA4AIDD` as a benchmark and adjacent service, not as a template to copy.
-7. The product target is both **humans** and **AI agents**.
-8. Every generated requirement must connect to evidence, user value, or quality risk.
-9. Every diagnosis must lead to an action: risk, improvement issue, roadmap item, or AI self-check instruction.
-10. The initial product must remain small enough to outsource and accept objectively.
+1. 診断結果は必ず行動へ接続する。リスク、改善Issue、ロードマップ、AI自己点検のいずれかを出す。
+2. AIだけでなく、人間・AIエージェント・リポジトリ証跡を同時に見る。
+3. スコアは暫定値。300件規模の根拠レビュー完了までは認証基準として扱わない。
+4. 日本のB2B業務システムとして、落ち着いた色、読みやすい日本語、説明責任を重視する。
+5. 外部送信、認証、DB、AI APIはv0.1では追加しない。
+6. 変更は小さく、レビュー可能な単位で行う。
 
 ---
 
-## 3. Product Positioning
+## 3. v0.1の診断スコープ
 
-AIDD-QMA is a quality maturity assessment and improvement-backlog generation tool for AI-driven development.
-
-It evaluates:
-
-- Human process maturity
-- AI agent operating discipline
-- Prompt and instruction management
-- Requirements and specification traceability
-- AI-generated artifact review
-- Test design and automation readiness
-- CI/CD and quality gate maturity
-- Security and privacy control
-- Repository and workflow evidence
-- Metrics and continuous improvement
-
-The strongest differentiator is this:
-
-> AIDD-QMA is not only a human assessment tool. It is also a self-audit protocol that AI development agents can read before implementation, before PR creation, before merge, and before release.
+| No | 領域 | 目的 |
+|---:|---|---|
+| 1 | AI利用ガバナンス | AIをどこで使い、誰が責任を持つかを明確にする |
+| 2 | エージェント指示管理 | AGENTS.md/CLAUDE.md等でAIの作業品質を安定させる |
+| 3 | 要件・コンテキスト品質 | AIが推測ではなく、明示された文脈で作業できる状態にする |
+| 4 | AI成果物レビュー | AI特有のもっともらしい誤り、前提誤り、スコープ逸脱を検出する |
+| 5 | テスト・自動化 | AI支援変更をテストと退行確認で守る |
+| 6 | CI/CD・品質ゲート | lint/test/build/secret scan等で最低品質を固定する |
+| 7 | セキュリティ・プライバシー | 秘密情報、個人情報、依存関係、契約制約を管理する |
+| 8 | トレーサビリティ | 要件、Issue、PR、テスト、リリースを追跡可能にする |
+| 9 | エージェント自己監査 | AI自身に実装前・PR前・マージ前の自己点検をさせる |
+| 10 | メトリクス・継続改善 | AI活用を速度だけでなく品質・手戻り・リスクで評価する |
 
 ---
 
-## 4. Primary Users
+## 4. 成熟度レベル
 
-### 4.1 Human Users
-
-Priority order:
-
-1. QA leads, test automation engineers, and AI tech leads
-2. Small AI-driven development teams using Claude Code, Codex, Cursor, GitHub Copilot, or similar agents
-3. Engineering managers, product managers, and scrum masters
-4. Third-party verification companies and QA consultants
-5. Development organizations introducing AI-assisted software development
-
-### 4.2 AI Users
-
-Target AI users:
-
-- Claude Code
-- Codex
-- GitHub Copilot Agent
-- Cursor Agent
-- Other coding agents or AI development orchestration agents
-
-AI users must use AIDD-QMA as:
-
-- A pre-work checklist
-- A PR self-review protocol
-- A risk extraction framework
-- A regression-risk reminder
-- A completion-claim guardrail
-- A prompt for generating improvement issues
+| レベル | 名称 | 状態 |
+|---|---|---|
+| Lv.0 | 未統制 | AI利用が場当たり的で、文書化・レビュー・責任分界が弱い |
+| Lv.1 | 管理開始 | 基本ルールと人間レビューはあるが、属人的でばらつく |
+| Lv.2 | 仕組み化 | テンプレート、品質ゲート、追跡性が定義されている |
+| Lv.3 | 最適化 | 指標、自己監査、継続改善、リスクベース自動化が運用されている |
 
 ---
 
 ## 5. Research Gate
 
-Before RFD v1.0, requirements v1.0, or scoring model v1.0 is finalized, the following research gate must be completed.
+本モデルの固定前に、以下を完了する必要があります。
 
-### 5.1 Required Source Volume
+- TPI / Test Process Improvement 関連の一次情報・公式資料・論文・信頼できる解説を150件以上レビューする
+- AIDD / AI-assisted development / Agentic coding 関連の一次情報・公式資料・論文・信頼できる解説を150件以上レビューする
+- 根拠マトリクスを作成する
+- 設問、重み、閾値、改善Issue案の妥当性を見直す
 
-| Research Area | Minimum Count | Requirement |
-|---|---:|---|
-| TPI / test process improvement / maturity models | 150 | Must include official, academic, practitioner, case-study, and tool-related sources |
-| AIDD / AI-assisted development / AI coding agents / AI quality / AI risk | 150 | Must include official, academic, survey, security, QA, and engineering-practice sources |
-| Total | 300 | Must be recorded in an evidence matrix |
+完了までは、画面・README・レポートに「検証前ドラフト」と明記します。
 
-### 5.2 Required Anchor Sources
+---
 
-At minimum, the evidence matrix must include these anchor source families:
+## 6. ファイル責務
 
-- TMAP / Sogeti TPI NEXT official material
-- TMAP / Sogeti Agile TPI official material
-- TPI NEXT Foundation or equivalent preparation material
-- Public case studies applying TPI, Agile TPI, TMMi, or adjacent maturity models
-- VeriServe QA4AIDD official service pages and press releases
-- NIST AI Risk Management Framework and AI RMF Core
-- OWASP Top 10 for LLM Applications
-- Google DORA AI-assisted software development report
-- Stack Overflow Developer Survey AI trust and adoption data
-- ISTQB CT-AI syllabus and official CT-AI material
-- Research papers on AI coding agents, AI-assisted software development, LLM security, and AI governance
-
-### 5.3 Evidence Matrix Columns
-
-The evidence matrix must contain at least the following fields:
-
-| Field | Description |
+| ファイル | 責務 |
 |---|---|
-| id | Unique source ID |
-| title | Source title |
-| url_or_location | URL or local path |
-| source_type | official / academic / survey / case study / blog / news / vendor / standard |
-| area | TPI / AIDD / AI risk / QA / security / process / design / market |
-| publication_date | Published or last updated date if available |
-| author_or_org | Author or organization |
-| reliability | high / medium / low |
-| core_claim | Main claim relevant to AIDD-QMA |
-| extracted_concepts | Concepts to reuse or consider |
-| implication_for_aidd_qma | How this changes the model or product |
-| adopt_decision | adopt / adapt / reject / monitor |
-| reason | Why the source is or is not used |
-| copyright_risk | none / low / medium / high |
-| notes | Additional notes |
-
-### 5.4 Research Quality Rules
-
-- Official sources and standards must be preferred when defining terminology.
-- Academic and survey sources must be used when discussing market need, empirical risk, or adoption behavior.
-- Vendor materials may be used as market evidence but not as neutral truth.
-- Blog posts may be used only as weak supporting evidence or practitioner pain-point evidence.
-- Any source that cannot be verified must be marked `unverified`.
-- Any inference must be labeled as `inference`, not as fact.
+| `docs/index.html` | 静的な画面構造。文言は日本語。 |
+| `docs/css/tokens.css` | 色、余白、フォント等のデザイントークン。 |
+| `docs/css/style.css` | コンポーネントスタイル。日本のB2B業務UIとして整える。 |
+| `docs/data/questions.js` | 診断カテゴリと50問。UIへ直書きしない。 |
+| `docs/data/sample-answers.js` | サンプル診断データ。 |
+| `docs/js/scoring.js` | スコアリング、リスク抽出、レポート生成。副作用を持たせない。 |
+| `docs/js/app.js` | UI状態管理と描画。 |
+| `README.md` | 利用者・外部開発者向け説明。 |
+| `sqec.md` | 受入条件・品質ゲート。 |
 
 ---
 
-## 6. Work Phases
+## 7. 禁止事項
 
-### Phase 0: Repository Setup
-
-Deliverables:
-
-- README.md
-- agent.md
-- sqec.md
-- docs/research_plan.md
-- docs/evidence_matrix_template.csv
-- docs/architecture_decision_record.md
-
-Exit criteria:
-
-- The project can explain what it is, what it is not, and how evidence will be gathered.
-
-### Phase 1: Research Collection
-
-Tasks:
-
-- Collect at least 150 TPI-related sources.
-- Collect at least 150 AIDD-related sources.
-- Fill the evidence matrix.
-- Tag sources by concept and product implication.
-
-Exit criteria:
-
-- No final model design is allowed before this phase passes.
-
-### Phase 2: Research Brief
-
-Deliverables:
-
-- docs/research_brief.md
-- docs/tpi_research_summary.md
-- docs/aidd_research_summary.md
-- docs/qa4aidd_benchmark.md
-- docs/risk_and_opportunity_map.md
-
-Exit criteria:
-
-- The product concept is traceable to evidence.
-
-### Phase 3: Concept Model
-
-Define:
-
-- Diagnostic dimensions
-- Maturity levels
-- Checkpoint structure
-- Scoring method
-- Human-facing questions
-- AI-facing self-audit prompts
-- Improvement issue generation rules
-
-Exit criteria:
-
-- The model is original and not a renamed TPI clone.
-
-### Phase 4: RFD v1.0
-
-Deliverables:
-
-- docs/rfd.md
-
-Must include:
-
-- Decision context
-- Alternatives considered
-- Evidence summary
-- Product positioning
-- Target users
-- Non-goals
-- Risks
-- Adoption strategy
-- Outsourcing strategy
-
-### Phase 5: Requirements v1.0
-
-Deliverables:
-
-- docs/requirements.md
-- docs/design_requirements.md
-- docs/questions_schema.md
-- docs/report_schema.md
-
-Exit criteria:
-
-- Outsourced developers can estimate implementation work.
-
-### Phase 6: Design and Prototype
-
-Deliverables:
-
-- UI wireframes
-- Component inventory
-- Design tokens
-- Sample report
-- Sample assessment JSON
-
-Exit criteria:
-
-- The UI reflects B2B quality assessment, not consumer AI SaaS styling.
-
-### Phase 7: Implementation
-
-Initial technical direction:
-
-- Web app
-- Static hosting compatible
-- JSON-driven assessment
-- No required backend for v0.1
-- No required AI API for v0.1
-- Markdown report output
-- Local/browser storage optional
-
-### Phase 8: Acceptance and Hardening
-
-Use `sqec.md` as the acceptance standard.
-
-No feature is accepted unless it satisfies:
-
-- Functional acceptance
-- Evidence acceptance
-- Design acceptance
-- Security/privacy acceptance
-- Maintainability acceptance
-- AI-agent usability acceptance
+- 明示指示なしにバックエンド、認証、DB、AI APIを追加しない
+- CDNや外部JS依存を追加しない
+- 設問データをUIコンポーネントへ直書きしない
+- スコアリングと描画処理を混在させない
+- `.git`、`.DS_Store`、`.playwright-mcp/`、`__MACOSX/` をコミットしない
+- 生成AIサービス風の派手なグラデーション、過度な絵文字、カジュアルなトーンへ寄せない
+- 未検証のスコアを認証・保証のように表現しない
 
 ---
 
-## 7. AIDD-QMA Concept Rules
+## 8. AIエージェント完了前チェック
 
-The model must evaluate both human and AI behavior.
+作業完了前に必ず以下を確認します。
 
-### 7.1 Human-Side Assessment Examples
-
-- Is there an explicit AI usage policy?
-- Are AI-generated artifacts reviewed using defined criteria?
-- Is responsibility for AI-assisted changes assigned to a human owner?
-- Are requirements, issues, PRs, tests, and releases traceable?
-- Are quality gates enforced before merge?
-
-### 7.2 AI-Side Assessment Examples
-
-- Did the AI identify the affected files, modules, tests, and risks?
-- Did the AI distinguish confirmed facts from assumptions?
-- Did the AI avoid claiming successful execution without evidence?
-- Did the AI propose tests for the changed behavior?
-- Did the AI flag human-review-required areas?
-
-### 7.3 Repository-Side Assessment Examples
-
-- Is there a CI pipeline?
-- Are tests present and executable?
-- Are linting and formatting checks defined?
-- Is secret detection or dependency scanning present?
-- Are PR templates and issue templates present?
-- Are agent instructions stored in `AGENTS.md`, `CLAUDE.md`, or equivalent files?
+- [ ] 変更範囲は依頼内容に収まっている
+- [ ] 変更ファイルと理由を説明できる
+- [ ] `node --check` 等でJS構文確認を実施した
+- [ ] 外部送信、認証、DB、AI APIを追加していない
+- [ ] 秘密情報、個人情報、認証情報を追加していない
+- [ ] 日本語文言として不自然な主要UIが残っていない
+- [ ] READMEまたは受入条件と矛盾していない
 
 ---
 
-## 8. Initial Diagnostic Areas
+## 9. 完了報告形式
 
-These are draft areas. They must be revised after the research gate.
+```md
+## 完了報告
 
-| No | Area | Purpose |
-|---:|---|---|
-| 1 | AI Usage Governance | Define where AI may be used and who is accountable |
-| 2 | Agent Instruction Management | Manage prompts, rules, and repo-specific operating instructions |
-| 3 | Requirements and Context Quality | Ensure AI works from stable, explicit context |
-| 4 | AI Artifact Review | Review AI-generated code, tests, specs, and documents |
-| 5 | Testing and Automation | Protect AI-driven changes with tests and regression checks |
-| 6 | CI/CD and Quality Gates | Enforce automated checks before merge and release |
-| 7 | Security and Privacy | Control secrets, data exposure, dependencies, and LLM risks |
-| 8 | Traceability | Connect requirements, issues, commits, PRs, tests, and releases |
-| 9 | Agent Self-Audit | Require AI to self-check before claiming completion |
-| 10 | Metrics and Continuous Improvement | Measure quality, productivity, rework, and risk trends |
+### 変更内容
+- [file] — [理由]
 
----
+### 確認結果
+- 構文確認: [command/result]
+- UI確認: [result]
 
-## 9. Maturity Level Draft
+### 未確認
+- [未確認事項があれば記載]
 
-This is a provisional structure.
-
-| Level | Name | Meaning |
-|---:|---|---|
-| Lv.0 | Uncontrolled | AI use is ad hoc, undocumented, and weakly reviewed |
-| Lv.1 | Managed | Basic rules, human review, and manual checks exist |
-| Lv.2 | Systemized | Repeatable processes, templates, and quality gates exist |
-| Lv.3 | Optimized | Metrics, self-audit, continuous improvement, and risk-based automation exist |
-
-The final maturity levels must be justified by the research brief.
-
----
-
-## 10. Output Requirements for AI Agents
-
-When an AI agent works on this project, it must output:
-
-1. What it changed
-2. Why it changed it
-3. What evidence supports the decision
-4. What remains unverified
-5. What risks remain
-6. What tests or reviews were performed
-7. What human decision is required, if any
-
-The agent must not output:
-
-- “Done” without evidence
-- “Tested” without command/result or explicit limitation
-- “Best practice” without source or reasoning
-- “TPI-compliant” unless formally verified
-- “QA4AIDD-compatible” unless benchmarked and legally safe
-
----
-
-## 11. AI Agent Self-Check Before Completion
-
-Before declaring work complete, answer the following:
-
-1. Did I use the latest project instructions?
-2. Did I distinguish evidence from inference?
-3. Did I avoid copying proprietary framework wording or structure?
-4. Did I update the relevant docs?
-5. Did I update or add tests if code changed?
-6. Did I run available tests or clearly state why not?
-7. Did I preserve the B2B quality-assessment design direction?
-8. Did I keep the product useful for both humans and AI agents?
-9. Did I avoid adding unnecessary backend, auth, DB, or AI API complexity to v0.1?
-10. Did I produce outputs that an outsourced developer or QA reviewer can verify?
-
-Completion format:
-
-```markdown
-## Completion Report
-
-### Changed
-- ...
-
-### Evidence
-- ...
-
-### Verified
-- ...
-
-### Not Verified
-- ...
-
-### Risks
-- ...
-
-### Human Review Needed
-- ...
+### 残リスク
+- [残リスクがあれば記載]
 ```
-
----
-
-## 12. External Contractor Rules
-
-Outsourced developers must receive and follow:
-
-- README.md
-- agent.md
-- sqec.md
-- docs/requirements.md
-- docs/design_requirements.md
-- docs/questions_schema.md
-- docs/report_schema.md
-
-Contractors must not:
-
-- Invent the assessment model without evidence
-- Hard-code questions into UI components
-- Add backend, auth, DB, or AI API unless explicitly requested
-- Replace the design direction with generic SaaS or flashy AI UI
-- Use copyrighted TPI or QA4AIDD text as product content
-- Treat demo output as accepted production behavior
-
-Contractors must deliver:
-
-- Source code
-- Setup instructions
-- Sample assessment JSON
-- Sample report
-- Screenshots
-- Manual test evidence
-- Known limitations
-- Handover notes
-
----
-
-## 13. Initial Anchor References
-
-These references must be included in the research matrix, but they are not enough to complete the research gate.
-
-- TMAP / Sogeti: TPI NEXT official material
-- TMAP / Sogeti: Agile Test Process Improvement official material
-- VeriServe: QA4AIDD official service and press release material
-- NIST: AI Risk Management Framework and AI RMF Core
-- OWASP: Top 10 for Large Language Model Applications
-- Google DORA: State of AI-assisted Software Development 2025
-- Stack Overflow: 2025 Developer Survey, AI tools trust and adoption data
-- ISTQB: Certified Tester AI Testing CT-AI official syllabus/material
-
----
-
-## 14. Current Status
-
-This file is a project operating manual and research-gate scaffold.
-
-It does not certify that the required 300-source research review has been completed.

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIDD-QMA — AI-Driven Development Quality Maturity Assessment</title>
+  <meta name="description" content="Assess and improve the quality maturity of your AI-assisted software development process across 10 diagnostic areas.">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ── WELCOME ─────────────────────────────────────────────────────────── -->
+  <div id="screen-welcome" class="screen active">
+    <div class="welcome-container">
+      <div class="welcome-hero">
+        <div class="product-badge">v0.1 · Research-Gate Draft</div>
+        <h1 class="product-title">AIDD-QMA</h1>
+        <p class="product-subtitle">AI-Driven Development<br>Quality Maturity Assessment</p>
+        <p class="product-desc">
+          Assess and improve the quality maturity of your AI-assisted development process.
+          Evaluates human discipline, AI agent behavior, and repository evidence across 10 areas.
+        </p>
+        <div class="project-name-row">
+          <label for="project-name-input">Project:</label>
+          <input id="project-name-input" type="text" placeholder="Enter project name (optional)" maxlength="100">
+        </div>
+        <div class="welcome-actions">
+          <button class="btn btn-primary" onclick="App.startFresh()">Start Assessment</button>
+          <button class="btn btn-secondary" onclick="App.loadSample()">Load Sample Data</button>
+        </div>
+      </div>
+
+      <div class="welcome-info">
+        <div class="info-card">
+          <span class="info-icon" aria-hidden="true">🔒</span>
+          <div>
+            <strong>Privacy Notice</strong>
+            <p>No assessment data is transmitted externally. All data remains in your browser. Do not enter secrets, credentials, or personal information.</p>
+          </div>
+        </div>
+        <div class="info-card">
+          <span class="info-icon" aria-hidden="true">⚠️</span>
+          <div>
+            <strong>Research-Gate Draft</strong>
+            <p>This model is provisional. The 300-source evidence review has not been completed. Scores are indicative, not normative.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="welcome-areas">
+        <h3>10 Diagnostic Areas</h3>
+        <div class="area-grid" id="welcome-areas"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ASSESSMENT ──────────────────────────────────────────────────────── -->
+  <div id="screen-assessment" class="screen">
+    <aside class="sidebar" role="navigation" aria-label="Category navigation">
+      <div class="sidebar-header">
+        <button class="back-btn" onclick="App.goTo('welcome')" aria-label="Back to welcome">← Back</button>
+        <span class="progress-label" aria-live="polite">
+          <span id="total-answered">0</span> / <span id="total-questions">50</span> answered
+        </span>
+      </div>
+      <nav class="category-nav" id="category-nav" aria-label="Diagnostic categories"></nav>
+      <div class="sidebar-footer">
+        <button class="btn btn-primary btn-block" onclick="App.viewResults()">View Results</button>
+      </div>
+    </aside>
+
+    <main class="assessment-main" id="assessment-main">
+      <div class="category-header">
+        <span class="category-number" id="cat-number" aria-hidden="true">1</span>
+        <div>
+          <h2 class="category-title" id="cat-title"></h2>
+          <div class="category-progress" role="progressbar" aria-label="Category progress">
+            <div class="progress-bar">
+              <div class="progress-fill" id="cat-progress-fill" style="width:0%"></div>
+            </div>
+            <span class="progress-text" id="cat-progress-text"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="question-card" id="question-card">
+        <div class="question-meta">
+          <span class="question-number" id="q-number"></span>
+          <span class="question-target-badge" id="q-target"></span>
+        </div>
+        <h3 class="question-text" id="q-text"></h3>
+        <fieldset class="choices" id="q-choices" aria-label="Answer choices">
+          <legend class="sr-only">Select a score level</legend>
+        </fieldset>
+        <div class="question-na">
+          <label class="na-label">
+            <input type="checkbox" id="q-na">
+            Not applicable to this project
+          </label>
+        </div>
+        <div class="risk-preview" id="risk-preview" role="alert" aria-live="polite"></div>
+      </div>
+
+      <div class="question-nav">
+        <button class="btn btn-outline" id="prev-btn" onclick="App.prevQuestion()">← Previous</button>
+        <button class="btn btn-primary" id="next-btn" onclick="App.nextQuestion()">Next →</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- ── RESULTS ─────────────────────────────────────────────────────────── -->
+  <div id="screen-results" class="screen">
+    <header class="results-header">
+      <button class="back-btn" onclick="App.goTo('assessment')" aria-label="Back to assessment">← Back to Assessment</button>
+      <div class="results-title-group">
+        <h1>Assessment Results</h1>
+        <div class="results-actions">
+          <button class="btn btn-primary" onclick="App.goTo('report')">View Report</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="results-layout">
+      <div class="results-main">
+        <div class="maturity-card" id="maturity-card">
+          <div class="maturity-score" id="maturity-score"></div>
+          <div class="maturity-level" id="maturity-level"></div>
+          <div class="maturity-desc" id="maturity-desc"></div>
+        </div>
+        <div class="chart-card">
+          <h3>Category Scores</h3>
+          <div class="chart-wrapper">
+            <div id="radar-chart" role="img" aria-label="Radar chart of category scores"></div>
+          </div>
+        </div>
+      </div>
+      <div class="results-side">
+        <div class="risks-card">
+          <h3>High-Risk Areas</h3>
+          <div id="risks-list"></div>
+        </div>
+        <div class="issues-card">
+          <h3>Improvement Issues</h3>
+          <div id="issues-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category-scores-grid" id="category-scores-grid"></div>
+  </div>
+
+  <!-- ── REPORT ──────────────────────────────────────────────────────────── -->
+  <div id="screen-report" class="screen">
+    <header class="report-header">
+      <button class="back-btn" onclick="App.goTo('results')" aria-label="Back to results">← Back to Results</button>
+      <div class="report-title-group">
+        <h1>Assessment Report</h1>
+        <div class="report-actions">
+          <button class="btn btn-outline" onclick="App.copyReport()">⧉ Copy Markdown</button>
+          <span class="copy-feedback" id="report-copy-feedback" aria-live="polite"></span>
+          <button class="btn btn-outline" onclick="window.print()">⎙ Print / PDF</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="report-layout">
+      <div class="report-main">
+        <div class="report-section">
+          <h3>Markdown Report — <span id="report-project-name"></span> <small id="report-score-summary"></small></h3>
+          <div class="report-copy-bar">
+            <button class="btn-icon-copy" onclick="App.copyReport()">⧉ Copy</button>
+          </div>
+          <pre id="report-content" class="report-pre" aria-label="Markdown report content"></pre>
+        </div>
+      </div>
+
+      <div class="report-side">
+        <div class="selfcheck-section">
+          <h3>AI Agent Self-Check Prompts</h3>
+          <p class="selfcheck-desc">Paste the prompt below into Claude Code, Codex, Cursor, or any coding agent.</p>
+          <div class="selfcheck-tabs" id="selfcheck-tabs" role="tablist" aria-label="Self-check phases">
+            <button class="tab-btn active" data-tab="pre-impl"  role="tab" aria-selected="true">Pre-Implementation</button>
+            <button class="tab-btn"        data-tab="pre-pr"    role="tab" aria-selected="false">Pre-PR</button>
+            <button class="tab-btn"        data-tab="pre-merge" role="tab" aria-selected="false">Pre-Merge</button>
+          </div>
+          <div class="selfcheck-prompt-container">
+            <button class="btn-icon-copy selfcheck-copy" onclick="App.copySelfCheck()" aria-label="Copy prompt to clipboard">⧉ Copy</button>
+            <span class="copy-feedback" id="selfcheck-copy-feedback" aria-live="polite"></span>
+            <pre id="selfcheck-prompt" class="selfcheck-pre" aria-label="AI self-check prompt"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<!-- Scripts: data → logic → app (dependency order) -->
+<script src="data/questions.js"></script>
+<script src="data/sample-answers.js"></script>
+<script src="js/scoring.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

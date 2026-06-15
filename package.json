@@ -1,0 +1,11 @@
+{
+  "name": "aidd-qma",
+  "version": "0.1.0",
+  "description": "AI-Driven Development Quality Maturity Assessment — v0.1 Research-Gate Draft",
+  "scripts": {
+    "dev": "npx serve docs -l 3000",
+    "start": "npx serve docs -l 3000"
+  },
+  "keywords": ["aidd", "quality", "maturity", "assessment", "ai-development"],
+  "license": "TBD"
+}

@@ -1,0 +1,23 @@
+# System files
+.DS_Store
+.DS_Store?
+*.swp
+*.swo
+*~
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# MCP
+.playwright-mcp/
+
+# Logs
+*.log
+npm-debug.log*

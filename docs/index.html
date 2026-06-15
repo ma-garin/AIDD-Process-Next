@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AIDD Process Next — AI駆動開発 品質成熟度アセスメント</title>
   <meta name="description" content="AI駆動開発プロセスの品質成熟度を、10領域・50問で自己診断し、改善IssueとAIエージェント向け自己点検プロンプトを生成します。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -14,7 +17,12 @@
   <!-- ── WELCOME ─────────────────────────────────────────────────────────── -->
   <div id="screen-welcome" class="screen active">
     <div class="welcome-container">
-      <div class="welcome-hero">
+      <div class="welcome-topbar">
+        <div class="app-brand-mark" aria-hidden="true">A</div>
+        <span class="app-brand-name">AIDD Process Next</span>
+        <span class="app-brand-version">v0.1 · 検証前ドラフト</span>
+      </div>
+      <div class="welcome-hero center">
         <div class="product-badge">v0.1 · 検証前ドラフト</div>
         <h1 class="product-title">AIDD Process Next</h1>
         <p class="product-subtitle">AI駆動開発<br>品質成熟度アセスメント</p>
@@ -60,6 +68,10 @@
   <div id="screen-assessment" class="screen">
     <aside class="sidebar" role="navigation" aria-label="診断カテゴリナビゲーション">
       <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <div class="sidebar-brand-mark" aria-hidden="true">A</div>
+          <span class="sidebar-brand-text">AIDD Process Next</span>
+        </div>
         <button class="back-btn" onclick="App.goTo('welcome')" aria-label="トップへ戻る">← トップへ戻る</button>
         <span class="progress-label" aria-live="polite">
           回答済み <span id="total-answered">0</span> / <span id="total-questions">50</span>

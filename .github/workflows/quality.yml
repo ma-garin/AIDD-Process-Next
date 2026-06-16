@@ -1,0 +1,23 @@
+name: Quality (a11y / Lighthouse)
+
+# パフォーマンス・アクセシビリティの可視化用。静的サイト(docs/)を対象に Lighthouse CI を実行する。
+# 当面は non-blocking（continue-on-error）でスコアを可視化し、回帰の傾向を観察する。
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true

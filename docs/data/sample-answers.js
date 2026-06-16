@@ -27,3 +27,7 @@ const SAMPLE_ANSWERS = {
 };
 
 const SAMPLE_PROJECT_NAME = 'AI開発チーム サンプル';
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { SAMPLE_ANSWERS, SAMPLE_PROJECT_NAME };
+}

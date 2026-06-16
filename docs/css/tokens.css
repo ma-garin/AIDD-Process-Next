@@ -1,59 +1,59 @@
-/* tokens.css — IBM Blue系ライトテーマ（WebSpec2Doc / ma-garin.github.io デザイン言語準拠） */
+/* tokens.css — ダーク精密診断テーマ（Instrument Dashboard） */
 :root {
-  /* ── Surface ──────────────────────────────────────────────────── */
-  --color-bg:           #F7F8FA;
-  --color-surface:      #FFFFFF;
-  --color-surface-alt:  #F2F4F7;
-  --color-surface-soft: #F9FAFB;
-  --color-border:       #E2E8F0;
-  --color-border-strong:#CBD5E1;
-  --color-border-focus: #0F62FE;
+  /* ── Surface ──────────────────────────────────────────────── */
+  --color-bg:           #06091A;
+  --color-surface:      #0B1228;
+  --color-surface-alt:  #101830;
+  --color-surface-soft: #0D1632;
+  --color-border:       #1C2A4E;
+  --color-border-strong:#263B6B;
+  --color-border-focus: #4589FF;
 
-  /* ── Primary (IBM Blue) ───────────────────────────────────────── */
-  --color-primary:      #0F62FE;
-  --color-primary-dark: #0043CE;
-  --color-primary-pale: #DCE7FB;
-  --color-primary-bg:   #EFF4FF;
-  --color-focus-ring:   rgba(15, 98, 254, 0.16);
+  /* ── Primary (Bright IBM Blue for dark bg) ────────────────── */
+  --color-primary:      #4589FF;
+  --color-primary-dark: #2A6EE0;
+  --color-primary-pale: #1A2E5E;
+  --color-primary-bg:   #0D1C45;
+  --color-focus-ring:   rgba(69, 137, 255, 0.25);
 
-  /* ── Text hierarchy ───────────────────────────────────────────── */
-  --color-text:           #111827;
-  --color-text-secondary: #5B6472;
-  --color-text-muted:     #9CA3AF;
+  /* ── Text hierarchy ───────────────────────────────────────── */
+  --color-text:           #DCE8F8;
+  --color-text-secondary: #7A90B8;
+  --color-text-muted:     #3E5070;
 
-  /* ── Semantic status ──────────────────────────────────────────── */
-  --color-critical:     #D32F2F;
-  --color-critical-bg:  #FDECEC;
-  --color-critical-border: #F5B5B5;
-  --color-high:         #B45309;
-  --color-high-bg:      #FEF6E7;
-  --color-high-border:  #FCD9A0;
-  --color-info:         #0F62FE;
-  --color-info-bg:      #EFF4FF;
-  --color-info-border:  #C7D7FE;
-  --color-ok:           #1F8A4C;
-  --color-ok-bg:        #E7F4EC;
-  --color-ok-border:    #A7E0BD;
-  --color-neutral:      #6B7280;
-  --color-neutral-bg:   #F3F4F6;
+  /* ── Semantic status ──────────────────────────────────────── */
+  --color-critical:        #FF5555;
+  --color-critical-bg:     rgba(255, 85, 85, 0.10);
+  --color-critical-border: rgba(255, 85, 85, 0.30);
+  --color-high:            #FFB84D;
+  --color-high-bg:         rgba(255, 184, 77, 0.10);
+  --color-high-border:     rgba(255, 184, 77, 0.30);
+  --color-info:            #4589FF;
+  --color-info-bg:         rgba(69, 137, 255, 0.08);
+  --color-info-border:     rgba(69, 137, 255, 0.25);
+  --color-ok:              #3DD68C;
+  --color-ok-bg:           rgba(61, 214, 140, 0.10);
+  --color-ok-border:       rgba(61, 214, 140, 0.30);
+  --color-neutral:         #5A7090;
+  --color-neutral-bg:      rgba(90, 112, 144, 0.12);
 
-  /* ── Maturity levels ──────────────────────────────────────────── */
-  --color-lv0: #D32F2F;
-  --color-lv1: #B45309;
-  --color-lv2: #0F62FE;
-  --color-lv3: #1F8A4C;
+  /* ── Maturity levels ──────────────────────────────────────── */
+  --color-lv0: #FF5555;
+  --color-lv1: #FFB84D;
+  --color-lv2: #4589FF;
+  --color-lv3: #3DD68C;
 
-  /* ── Score badge ──────────────────────────────────────────────── */
-  --color-score-0:      #FDECEC;
-  --color-score-1:      #FEF6E7;
-  --color-score-2:      #EFF4FF;
-  --color-score-3:      #E7F4EC;
-  --color-score-0-text: #D32F2F;
-  --color-score-1-text: #B45309;
-  --color-score-2-text: #0F62FE;
-  --color-score-3-text: #1F8A4C;
+  /* ── Score badges ─────────────────────────────────────────── */
+  --color-score-0:      rgba(255, 85,  85,  0.15);
+  --color-score-1:      rgba(255, 184, 77,  0.15);
+  --color-score-2:      rgba(69,  137, 255, 0.15);
+  --color-score-3:      rgba(61,  214, 140, 0.15);
+  --color-score-0-text: #FF7777;
+  --color-score-1-text: #FFC870;
+  --color-score-2-text: #70A8FF;
+  --color-score-3-text: #5FDAA8;
 
-  /* ── Spacing ──────────────────────────────────────────────────── */
+  /* ── Spacing ──────────────────────────────────────────────── */
   --sp-1: 0.25rem;
   --sp-2: 0.5rem;
   --sp-3: 0.75rem;
@@ -64,9 +64,11 @@
   --sp-10: 2.5rem;
   --sp-12: 3rem;
 
-  /* ── Typography ───────────────────────────────────────────────── */
-  --font-sans: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', 'Segoe UI', sans-serif;
-  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', 'Courier New', monospace;
+  /* ── Typography ───────────────────────────────────────────── */
+  --font-sans: 'Noto Sans JP', -apple-system, BlinkMacSystemFont,
+               'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas,
+               'Liberation Mono', 'Courier New', monospace;
   --text-xs:   0.75rem;
   --text-sm:   0.875rem;
   --text-base: 1rem;
@@ -75,16 +77,22 @@
   --text-2xl:  1.5rem;
   --text-3xl:  1.875rem;
 
-  /* ── Borders & Shadows ────────────────────────────────────────── */
+  /* ── Borders & Shadows ────────────────────────────────────── */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
 
-  --shadow-sm:  0 1px 2px rgba(16, 24, 40, 0.05);
-  --shadow-md:  0 4px 12px rgba(16, 24, 40, 0.08);
-  --shadow-lg:  0 10px 24px rgba(16, 24, 40, 0.12), 0 2px 6px rgba(16, 24, 40, 0.08);
-  --shadow-pop: 0 20px 40px rgba(16, 24, 40, 0.14);
+  --shadow-sm:  0 1px 4px  rgba(0, 0, 0, 0.5);
+  --shadow-md:  0 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-lg:  0 12px 32px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 24px 56px rgba(0, 0, 0, 0.8);
 
-  /* ── Layout ───────────────────────────────────────────────────── */
+  /* ── Glow effects ─────────────────────────────────────────── */
+  --glow-primary:  0 0 20px rgba(69,  137, 255, 0.45);
+  --glow-critical: 0 0 20px rgba(255, 85,  85,  0.45);
+  --glow-ok:       0 0 20px rgba(61,  214, 140, 0.45);
+  --glow-high:     0 0 20px rgba(255, 184, 77,  0.45);
+
+  /* ── Layout ───────────────────────────────────────────────── */
   --sidebar-width: 272px;
 }

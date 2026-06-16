@@ -157,14 +157,15 @@ const App = (function () {
   }
 
   function renderWelcome() {
-    const grid = document.getElementById('welcome-areas');
-    if (!grid) return;
-    grid.innerHTML = CATEGORIES.map((c, i) => `
-      <div class="area-chip">
-        <span class="area-number">${i + 1}</span>
-        <span class="area-name">${escapeHtml(c.name)}</span>
-      </div>
-    `).join('');
+    const nav = document.getElementById('welcome-areas-nav');
+    if (nav) {
+      nav.innerHTML = CATEGORIES.map((c, i) => `
+        <li class="sidenav-area-item">
+          <span class="sidenav-area-num">${i + 1}</span>
+          <span>${escapeHtml(c.name)}</span>
+        </li>
+      `).join('');
+    }
 
     const nameInput = document.getElementById('project-name-input');
     if (nameInput && state.projectName) nameInput.value = state.projectName;

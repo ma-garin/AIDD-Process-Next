@@ -20,69 +20,115 @@
 
   <!-- ── WELCOME ─────────────────────────────────────────────────────────── -->
   <div id="screen-welcome" class="screen active">
-    <div class="welcome-container">
-      <div class="welcome-topbar">
-        <div class="app-brand-mark" aria-hidden="true">A</div>
-        <span class="app-brand-name">AIDD Process Next</span>
-        <span class="app-brand-version">v0.1 · 検証前ドラフト</span>
-      </div>
-      <div class="welcome-hero center">
-        <div class="product-badge">v0.1 · 検証前ドラフト</div>
-        <h1 class="product-title">AIDD Process Next</h1>
-        <p class="product-subtitle">AI駆動開発<br>品質成熟度アセスメント</p>
-        <p class="product-desc">
-          AIを使った開発が「属人的・場当たり的」になっていないかを確認し、
-          人・AIエージェント・リポジトリ証跡の3視点から改善課題を整理します。
-        </p>
-        <div class="project-name-row">
-          <label for="project-name-input">対象プロジェクト</label>
-          <input id="project-name-input" type="text" placeholder="例：顧客ポータル刷新PJ（任意）" maxlength="100">
-        </div>
-        <div class="welcome-actions">
-          <button class="btn btn-primary" onclick="App.startFresh()">診断を開始</button>
-          <button class="btn btn-secondary" onclick="App.loadSample()">サンプルで確認</button>
-        </div>
-      </div>
 
-      <div class="welcome-info">
-        <div class="info-card">
-          <span class="info-icon" aria-hidden="true">守</span>
-          <div>
-            <strong>情報の扱い</strong>
-            <p>入力内容は外部送信されません。ブラウザ内で処理します。機密情報・認証情報・個人情報は入力しないでください。</p>
+    <!-- Carbon Shell Header -->
+    <header class="shell-header" role="banner">
+      <div class="shell-header-left">
+        <div class="shell-brand-mark" aria-hidden="true">A</div>
+        <span class="shell-brand-name">AIDD Process Next</span>
+        <span class="shell-brand-divider" aria-hidden="true"></span>
+        <span class="shell-brand-subtitle">AI駆動開発 品質成熟度アセスメント</span>
+      </div>
+      <nav class="shell-header-nav" aria-label="グローバルナビゲーション">
+        <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer" class="shell-header-link">GitHub</a>
+      </nav>
+      <div class="shell-header-right">
+        <span class="shell-version-badge">v0.1 · 検証前ドラフト</span>
+      </div>
+    </header>
+
+    <!-- Shell Body: Side Nav + Main -->
+    <div class="shell-body">
+
+      <!-- Left Side Navigation (Carbon-style) -->
+      <nav class="shell-sidenav" aria-label="サイドナビゲーション">
+        <div class="sidenav-section">
+          <p class="sidenav-section-title">メニュー</p>
+          <ul class="sidenav-list">
+            <li class="sidenav-item active" aria-current="page">
+              <span class="sidenav-icon" aria-hidden="true">⊞</span>
+              <span>ホーム</span>
+            </li>
+            <li class="sidenav-item sidenav-cta" onclick="App.startFresh()" role="button" tabindex="0">
+              <span class="sidenav-icon" aria-hidden="true">▶</span>
+              <span>診断を開始</span>
+            </li>
+            <li class="sidenav-item sidenav-cta" onclick="App.loadSample()" role="button" tabindex="0">
+              <span class="sidenav-icon" aria-hidden="true">◈</span>
+              <span>サンプルで確認</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="sidenav-divider" role="separator"></div>
+
+        <div class="sidenav-section">
+          <p class="sidenav-section-title">診断領域（10領域）</p>
+          <ul class="sidenav-list" id="welcome-areas-nav" aria-label="診断領域一覧"></ul>
+        </div>
+
+        <div class="sidenav-footer">
+          <span>v0.1 · 検証前ドラフト</span>
+          <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="shell-main" id="shell-main">
+        <div class="welcome-hero">
+          <div class="product-badge">v0.1 · 検証前ドラフト</div>
+          <h1 class="product-title">AIDD Process Next</h1>
+          <p class="product-subtitle">AI駆動開発<br>品質成熟度アセスメント</p>
+          <p class="product-desc">
+            AIを使った開発が「属人的・場当たり的」になっていないかを確認し、
+            人・AIエージェント・リポジトリ証跡の3視点から改善課題を整理します。
+          </p>
+          <div class="project-name-row">
+            <label for="project-name-input">対象プロジェクト</label>
+            <input id="project-name-input" type="text" placeholder="例：顧客ポータル刷新PJ（任意）" maxlength="100">
+          </div>
+          <div class="welcome-actions">
+            <button class="btn btn-primary" onclick="App.startFresh()">診断を開始</button>
+            <button class="btn btn-secondary" onclick="App.loadSample()">サンプルで確認</button>
           </div>
         </div>
-        <div class="info-card">
-          <span class="info-icon" aria-hidden="true">暫</span>
-          <div>
-            <strong>ドラフト扱い</strong>
-            <p>本モデルは検証前です。300件規模の根拠レビュー完了までは、認証・監査基準ではなく改善のたたき台として扱います。</p>
+
+        <div class="welcome-info">
+          <div class="info-card">
+            <span class="info-icon" aria-hidden="true">守</span>
+            <div>
+              <strong>情報の扱い</strong>
+              <p>入力内容は外部送信されません。ブラウザ内で処理します。機密情報・認証情報・個人情報は入力しないでください。</p>
+            </div>
+          </div>
+          <div class="info-card">
+            <span class="info-icon" aria-hidden="true">暫</span>
+            <div>
+              <strong>ドラフト扱い</strong>
+              <p>本モデルは検証前です。300件規模の根拠レビュー完了までは、認証・監査基準ではなく改善のたたき台として扱います。</p>
+            </div>
+          </div>
+          <div class="info-card">
+            <span class="info-icon" aria-hidden="true">用</span>
+            <div>
+              <strong>想定ユースケース</strong>
+              <p>本ツールはAI駆動開発の現状把握と改善の起点として利用します。コンサルタントや品質担当者がチームと結果を議論し、改善ロードマップを策定する場面を想定しています。</p>
+            </div>
           </div>
         </div>
-        <div class="info-card">
-          <span class="info-icon" aria-hidden="true">用</span>
-          <div>
-            <strong>想定ユースケース</strong>
-            <p>本ツールはAI駆動開発の現状把握と改善の起点として利用します。コンサルタントや品質担当者がチームと結果を議論し、改善ロードマップを策定する場面を想定しています。</p>
-          </div>
-        </div>
-      </div>
 
-      <div class="welcome-areas">
-        <h3>診断領域（10領域）</h3>
-        <div class="area-grid" id="welcome-areas"></div>
-      </div>
-    </div>
+        <footer class="page-footer">
+          <span class="page-footer-brand">AIDD Process Next</span>
+          <span class="page-footer-sep">·</span>
+          <span>v0.1 · 検証前ドラフト</span>
+          <span class="page-footer-sep">·</span>
+          <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <span class="page-footer-sep">·</span>
+          <span>ブラウザ完結 · データ外部送信なし</span>
+        </footer>
+      </main>
 
-    <footer class="page-footer">
-      <span class="page-footer-brand">AIDD Process Next</span>
-      <span class="page-footer-sep">·</span>
-      <span>v0.1 · 検証前ドラフト</span>
-      <span class="page-footer-sep">·</span>
-      <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer">GitHub</a>
-      <span class="page-footer-sep">·</span>
-      <span>ブラウザ完結 · データ外部送信なし</span>
-    </footer>
+    </div><!-- .shell-body -->
   </div>
 
   <!-- ── ASSESSMENT ──────────────────────────────────────────────────────── -->

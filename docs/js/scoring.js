@@ -53,6 +53,14 @@ function buildCategoryScores(answers) {
   }));
 }
 
+function getTopPriorityCategory(categoryScores) {
+  const valid = categoryScores.filter(s => s.score !== null);
+  if (valid.length === 0) return null;
+  return valid.reduce((min, s) =>
+    s.score < min.score || (s.score === min.score && s.categoryId < min.categoryId) ? s : min
+  );
+}
+
 function buildResults(answers, projectName) {
   const categoryScores = buildCategoryScores(answers);
   const totalScore = calcTotalScore(categoryScores);
@@ -66,6 +74,7 @@ function buildResults(answers, projectName) {
     level,
     risks,
     issues: getIssues(risks),
+    topPriorityCategory: getTopPriorityCategory(categoryScores),
   };
 }
 

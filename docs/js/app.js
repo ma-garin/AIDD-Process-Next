@@ -112,6 +112,17 @@ const App = (function () {
     copyToClipboard(text, 'selfcheck-copy-feedback');
   }
 
+  function copyShareURL() {
+    const search = encodeStateToURL(state.answers, state.projectName);
+    const url = window.location.origin + window.location.pathname + search;
+    copyToClipboard(url, 'share-url-feedback');
+  }
+
+  function dismissURLBanner() {
+    const el = document.getElementById('url-import-banner');
+    if (el) el.hidden = true;
+  }
+
   // ── Helpers ────────────────────────────────────────────────────────────────
 
   function questionsForCategory(catIndex) {
@@ -283,6 +294,40 @@ const App = (function () {
     renderRisksList(r.risks);
     renderIssuesList(r.issues);
     renderCategoryGrid(r.categoryScores);
+    renderExecSummary(r);
+  }
+
+  function renderExecSummary(r) {
+    const date = new Date().toISOString().split('T')[0];
+    setText('es-project-name', r.projectName);
+    setText('es-date', date);
+    setText('es-total-score', r.totalScore + '/100');
+    setText('es-level', r.level.icon + ' ' + r.level.name);
+    setText('es-level-desc', r.level.description);
+
+    const risksEl = document.getElementById('es-risks-list');
+    if (risksEl) {
+      risksEl.innerHTML = r.risks.slice(0, 5).map(risk => {
+        const catName = CATEGORIES.find(c => c.id === risk.categoryId)?.abbr || '';
+        const sev = escapeHtml(risk.severity);
+        const sevLabel = risk.severity === 'critical' ? '重大' : '高';
+        return `<div class="es-risk-item">
+          <span class="severity-badge ${sev}">${sevLabel}</span>
+          <span class="es-risk-cat">${escapeHtml(catName)}</span>
+          <span class="es-risk-text">${escapeHtml(risk.recommendation)}</span>
+        </div>`;
+      }).join('') || '<p>優先リスクは検出されませんでした。</p>';
+    }
+
+    const actionsEl = document.getElementById('es-actions-list');
+    if (actionsEl) {
+      actionsEl.innerHTML = r.issues.slice(0, 3).map(issue =>
+        `<li><strong>${escapeHtml(issue.priority)}</strong> ${escapeHtml(issue.title)}</li>`
+      ).join('') || '<li>改善アクションは生成されませんでした。</li>';
+    }
+
+    const el = document.getElementById('exec-summary-print');
+    if (el) el.removeAttribute('aria-hidden');
   }
 
   function renderRadarChart(categoryScores) {
@@ -389,17 +434,22 @@ const App = (function () {
   function renderCategoryGrid(categoryScores) {
     const el = document.getElementById('category-scores-grid');
     if (!el) return;
+    const topId = state.results?.topPriorityCategory?.categoryId ?? null;
     el.innerHTML = categoryScores.map(s => {
       const lv = determineLevelForScore(s.score);
       const pct = s.score !== null ? s.score : 0;
+      const isTop = topId !== null && s.categoryId === topId;
       return `
-        <div class="cat-score-card">
+        <div class="cat-score-card${isTop ? ' top-priority' : ''}">
           <div class="cat-score-header">
             <span class="cat-score-name">${escapeHtml(s.name)}</span>
-            <span class="cat-score-badge ${lv.cssClass}">${lv.icon} ${s.score !== null ? s.score : 'N/A'}</span>
+            <div class="cat-score-badges">
+              ${isTop ? '<span class="top-priority-badge">最優先</span>' : ''}
+              <span class="cat-score-badge ${escapeHtml(lv.cssClass)}">${escapeHtml(lv.icon)} ${s.score !== null ? s.score : 'N/A'}</span>
+            </div>
           </div>
           <div class="cat-score-bar">
-            <div class="cat-score-fill ${lv.cssClass}" style="width:${pct}%"></div>
+            <div class="cat-score-fill ${escapeHtml(lv.cssClass)}" style="width:${pct}%"></div>
           </div>
         </div>
       `;
@@ -473,10 +523,18 @@ const App = (function () {
     });
   }
 
-  // Initialize on load
+  // Initialize on load — check for shared URL state before rendering
   document.addEventListener('DOMContentLoaded', () => {
     initEventDelegation();
-    render(true);
+    const imported = decodeStateFromURL(window.location.search);
+    if (imported) {
+      state = { ...INITIAL_STATE, answers: imported.answers, projectName: imported.projectName, screen: 'assessment' };
+      render(true);
+      const banner = document.getElementById('url-import-banner');
+      if (banner) banner.hidden = false;
+    } else {
+      render(true);
+    }
   });
 
   return {
@@ -484,5 +542,6 @@ const App = (function () {
     nextQuestion, prevQuestion, jumpToCategory,
     selectAnswer, toggleNA, viewResults,
     switchSelfCheckTab, copyReport, copySelfCheck,
+    copyShareURL, dismissURLBanner,
   };
 })();

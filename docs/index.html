@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AIDD Process Next — AI駆動開発 品質成熟度アセスメント</title>
   <meta name="description" content="AI駆動開発プロセスの品質成熟度を、10領域・50問で自己診断し、改善IssueとAIエージェント向け自己点検プロンプトを生成します。">
+  <meta name="theme-color" content="#0F62FE">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <link rel="apple-touch-icon" href="./icon.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="AIDD Process">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -13,6 +19,19 @@
 </head>
 <body>
 <div id="app">
+  <div id="a11y-live" class="sr-only" aria-live="polite"></div>
+
+  <!-- ── ERROR (UX2 / F4) ─────────────────────────────────────────────────── -->
+  <div id="screen-error" class="screen">
+    <div class="welcome-container">
+      <div class="welcome-hero center">
+        <div class="product-badge critical">データエラー</div>
+        <h1 class="product-title">設問データを読み込めませんでした</h1>
+        <p class="product-desc">設問データ（questions.js）の形式が不正です。リポジトリのデータを確認してください。</p>
+        <pre id="error-detail" class="report-pre" aria-label="エラー詳細"></pre>
+      </div>
+    </div>
+  </div>
 
   <!-- ── WELCOME ─────────────────────────────────────────────────────────── -->
   <div id="screen-welcome" class="screen active">
@@ -21,6 +40,7 @@
         <div class="app-brand-mark" aria-hidden="true">A</div>
         <span class="app-brand-name">AIDD Process Next</span>
         <span class="app-brand-version">v0.1 · 検証前ドラフト</span>
+        <button class="theme-toggle" data-theme-toggle type="button" aria-label="テーマ切替">☾ ダーク</button>
       </div>
       <div class="welcome-hero center">
         <div class="product-badge">v0.1 · 検証前ドラフト</div>
@@ -38,6 +58,13 @@
           <button class="btn btn-primary" onclick="App.startFresh()">診断を開始</button>
           <button class="btn btn-secondary" onclick="App.loadSample()">サンプルで確認</button>
         </div>
+        <div class="welcome-actions secondary">
+          <button class="btn btn-outline" id="resume-btn" onclick="App.resume()" style="display:none">前回の続きから再開</button>
+          <label class="btn btn-outline file-btn">
+            診断データ（JSON）を読み込む
+            <input type="file" id="import-json" accept="application/json,.json" onchange="App.importJSON(this.files[0])" hidden>
+          </label>
+        </div>
       </div>
 
       <div class="welcome-info">
@@ -45,7 +72,7 @@
           <span class="info-icon" aria-hidden="true">守</span>
           <div>
             <strong>情報の扱い</strong>
-            <p>入力内容は外部送信されません。ブラウザ内で処理します。機密情報・認証情報・個人情報は入力しないでください。</p>
+            <p>入力内容は外部送信されません。ブラウザ内で処理し、進捗はこの端末のlocalStorageにのみ保存します。機密情報・認証情報・個人情報は入力しないでください。</p>
           </div>
         </div>
         <div class="info-card">
@@ -70,6 +97,8 @@
       <span class="page-footer-sep">·</span>
       <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer">GitHub</a>
       <span class="page-footer-sep">·</span>
+      <a href="../PRIVACY.md" target="_blank" rel="noopener noreferrer">プライバシー</a>
+      <span class="page-footer-sep">·</span>
       <span>ブラウザ完結 · データ外部送信なし</span>
     </footer>
   </div>
@@ -83,15 +112,16 @@
           <span class="sidebar-brand-text">AIDD Process Next</span>
         </div>
         <button class="back-btn" onclick="App.goTo('welcome')" aria-label="トップへ戻る">← トップへ戻る</button>
-        <span class="progress-label" aria-live="polite">
+        <span class="progress-label">
           回答済み <span id="total-answered">0</span> / <span id="total-questions">50</span>
         </span>
       </div>
       <nav class="category-nav" id="category-nav" aria-label="診断カテゴリ"></nav>
       <div class="sidebar-footer">
+        <button class="btn btn-outline btn-block" onclick="App.goReview()">回答を見直す</button>
         <button class="btn btn-primary btn-block" onclick="App.viewResults()">結果を見る</button>
         <div class="sidebar-meta">
-          <span>v0.1 · 検証前ドラフト</span>
+          <button class="theme-toggle" data-theme-toggle type="button">☾ ダーク</button>
           <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </div>
@@ -106,20 +136,22 @@
           <span class="breadcrumb-sep">›</span>
           <span class="breadcrumb-item breadcrumb-current" id="breadcrumb-category">—</span>
         </nav>
-        <div class="topbar-progress" aria-live="polite">
+        <div class="topbar-progress">
           <span id="topbar-answered">0</span> / <span id="topbar-total">50</span> 回答済み
         </div>
       </div>
 
       <div class="category-header">
         <span class="category-number" id="cat-number" aria-hidden="true">1</span>
-        <div>
+        <div class="category-header-body">
           <h2 class="category-title" id="cat-title"></h2>
+          <p class="category-purpose" id="cat-purpose"></p>
           <div class="category-progress" role="progressbar" aria-label="カテゴリ進捗">
             <div class="progress-bar">
               <div class="progress-fill" id="cat-progress-fill" style="width:0%"></div>
             </div>
             <span class="progress-text" id="cat-progress-text"></span>
+            <span class="category-meta" id="cat-meta"></span>
           </div>
         </div>
       </div>
@@ -139,14 +171,54 @@
             このプロジェクトでは対象外
           </label>
         </div>
+        <div class="question-memo">
+          <label for="q-memo">根拠・証跡メモ（任意）</label>
+          <textarea id="q-memo" rows="2" maxlength="500"></textarea>
+        </div>
         <div class="risk-preview" id="risk-preview" role="alert" aria-live="polite"></div>
       </div>
+
+      <aside class="bars-legend" aria-label="スコアの基準">
+        <span class="bars-legend-title">スコア基準（BARS）</span>
+        <span class="bars-item"><span class="choice-score score-0">0</span> 未整備：方針がなく各自判断</span>
+        <span class="bars-item"><span class="choice-score score-1">1</span> 属人的：慣習はあるが文書化されていない</span>
+        <span class="bars-item"><span class="choice-score score-2">2</span> 定義済み：ルール・ゲート・追跡性が定義</span>
+        <span class="bars-item"><span class="choice-score score-3">3</span> 運用定着：指標・証跡で継続改善</span>
+        <span class="bars-hint">キー操作: 0–3で回答 ・ Nで対象外 ・ ←→で移動</span>
+      </aside>
 
       <div class="question-nav">
         <button class="btn btn-outline" id="prev-btn" onclick="App.prevQuestion()">← 前へ</button>
         <button class="btn btn-primary" id="next-btn" onclick="App.nextQuestion()">次へ →</button>
       </div>
     </main>
+  </div>
+
+  <!-- ── REVIEW (UX3) ────────────────────────────────────────────────────── -->
+  <div id="screen-review" class="screen">
+    <header class="app-topbar">
+      <div class="app-topbar-left">
+        <div class="app-topbar-brand">
+          <div class="sidebar-brand-mark" aria-hidden="true">A</div>
+          <span class="sidebar-brand-text">AIDD Process Next</span>
+        </div>
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+          <button class="breadcrumb-item breadcrumb-link back-btn" onclick="App.goTo('assessment')">診断</button>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-item breadcrumb-current">回答の見直し</span>
+        </nav>
+      </div>
+      <div class="app-topbar-actions">
+        <button class="btn btn-outline" onclick="App.goTo('assessment')">診断へ戻る</button>
+        <button class="btn btn-primary" onclick="App.viewResults()">結果を見る</button>
+      </div>
+    </header>
+    <div class="review-layout">
+      <h2>回答の見直し</h2>
+      <p class="review-summary" id="review-summary"></p>
+      <p class="muted">セルをクリックすると、その設問に移動して修正できます（数字=スコア、—=対象外、·=未回答）。</p>
+      <div class="review-grid" id="review-grid"></div>
+    </div>
   </div>
 
   <!-- ── RESULTS ─────────────────────────────────────────────────────────── -->
@@ -164,6 +236,7 @@
         </nav>
       </div>
       <div class="app-topbar-actions">
+        <button class="theme-toggle" data-theme-toggle type="button">☾ ダーク</button>
         <button class="btn btn-primary" onclick="App.goTo('report')">レポートを見る</button>
       </div>
     </header>
@@ -174,12 +247,22 @@
           <div class="maturity-score" id="maturity-score"></div>
           <div class="maturity-level" id="maturity-level"></div>
           <div class="maturity-desc" id="maturity-desc"></div>
+          <div class="maturity-insights">
+            <span class="insight-badge" id="results-confidence"></span>
+            <span class="insight-gap" id="results-gap"></span>
+          </div>
+          <div class="insight-diff" id="results-diff" style="display:none"></div>
         </div>
         <div class="chart-card">
           <h3>カテゴリ別スコア</h3>
           <div class="chart-wrapper">
             <div id="radar-chart" role="img" aria-label="カテゴリ別スコアのレーダーチャート"></div>
           </div>
+        </div>
+        <div class="incoherence-card" id="results-incoherence" style="display:none"></div>
+        <div class="rationale-card">
+          <h3>この結果の根拠</h3>
+          <div id="results-rationale"></div>
         </div>
       </div>
       <div class="results-side">
@@ -215,10 +298,23 @@
       </div>
       <div class="app-topbar-actions">
         <button class="btn btn-outline" onclick="App.copyReport()">⧉ Markdownをコピー</button>
-        <span class="copy-feedback" id="report-copy-feedback" aria-live="polite"></span>
         <button class="btn btn-outline" onclick="window.print()">⎙ 印刷 / PDF</button>
       </div>
     </header>
+
+    <div class="report-toolbar">
+      <span class="report-badge" id="report-badge" aria-label="成熟度バッジ"></span>
+      <div class="report-toolbar-actions">
+        <button class="btn btn-outline" onclick="App.exportJSON()">JSON書き出し</button>
+        <button class="btn btn-outline" onclick="App.exportReportCSV()">スコアCSV</button>
+        <button class="btn btn-outline" onclick="App.exportIssuesCSV()">IssueCSV</button>
+        <button class="btn btn-outline" onclick="App.copyIssues()">Issue一括コピー</button>
+        <button class="btn btn-outline" onclick="App.copyShareUrl()">共有リンク</button>
+        <button class="btn btn-outline" onclick="App.copyBadge()">バッジMarkdown</button>
+      </div>
+      <span class="copy-feedback" id="export-feedback" aria-live="polite"></span>
+      <span class="copy-feedback" id="share-feedback" aria-live="polite"></span>
+    </div>
 
     <div class="report-layout">
       <div class="report-main">
@@ -226,6 +322,7 @@
           <h3>Markdownレポート — <span id="report-project-name"></span> <small id="report-score-summary"></small></h3>
           <div class="report-copy-bar">
             <button class="btn-icon-copy" onclick="App.copyReport()">⧉ コピー</button>
+            <span class="copy-feedback" id="report-copy-feedback" aria-live="polite"></span>
           </div>
           <pre id="report-content" class="report-pre" aria-label="Markdownレポート本文"></pre>
         </div>
@@ -234,7 +331,16 @@
       <div class="report-side">
         <div class="selfcheck-section">
           <h3>AIエージェント自己点検プロンプト</h3>
-          <p class="selfcheck-desc">Claude Code、Codex、Cursorなどのコーディングエージェントへ貼り付けて使います。</p>
+          <p class="selfcheck-desc">コーディングエージェントへ貼り付けて使います。</p>
+          <div class="selfcheck-controls">
+            <label for="selfcheck-agent">対象エージェント</label>
+            <select id="selfcheck-agent" onchange="App.setAiModel(this.value)">
+              <option value="generic">汎用</option>
+              <option value="claude">Claude Code</option>
+              <option value="codex">Codex / GPT系</option>
+              <option value="cursor">Cursor</option>
+            </select>
+          </div>
           <div class="selfcheck-tabs" id="selfcheck-tabs" role="tablist" aria-label="自己点検フェーズ">
             <button class="tab-btn active" data-tab="pre-impl"  role="tab" aria-selected="true">実装前</button>
             <button class="tab-btn"        data-tab="pre-pr"    role="tab" aria-selected="false">PR前</button>
@@ -256,5 +362,13 @@
 <script src="data/sample-answers.js"></script>
 <script src="js/scoring.js"></script>
 <script src="js/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js', { scope: './' })
+        .catch(function (err) { console.error('SW registration failed:', err); });
+    });
+  }
+</script>
 </body>
 </html>

@@ -4,8 +4,12 @@
   "description": "AI駆動開発プロセスの品質成熟度を診断する日本語B2B向けセルフアセスメントツール",
   "scripts": {
     "dev": "npx serve docs -l 3000",
-    "start": "npx serve docs -l 3000"
+    "start": "npx serve docs -l 3000",
+    "check": "node --check docs/js/scoring.js && node --check docs/js/app.js && node --check docs/data/questions.js && node --check docs/data/sample-answers.js && node --check docs/sw.js",
+    "test": "node --test",
+    "scan": "bash scripts/scan-forbidden-terms.sh",
+    "done-gate": "bash scripts/done-gate.sh"
   },
   "keywords": ["aidd", "quality", "maturity", "assessment", "ai-development", "qa"],
-  "license": "TBD"
+  "license": "MIT"
 }

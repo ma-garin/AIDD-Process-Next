@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="AIDD Process Next">
+  <rect width="512" height="512" rx="96" ry="96" fill="#0F62FE"/>
+  <g fill="none" stroke="#FFFFFF" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Maturity radar / assessment polygon -->
+    <polygon points="256,120 380,200 332,344 180,344 132,200" stroke-width="20"/>
+    <polygon points="256,196 320,236 296,316 216,316 192,236" fill="#FFFFFF" stroke="none"/>
+    <!-- Center check mark -->
+    <path d="M224 256 l22 24 l44 -52" stroke="#0F62FE" stroke-width="18"/>
+  </g>
+</svg>

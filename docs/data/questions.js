@@ -1678,3 +1678,46 @@ const QUESTIONS = [
     "aiSelfCheck": "今回得た知見を、再利用可能なテンプレートや手順に反映する。"
   }
 ];
+
+/* ── Version metadata (FT2) ──────────────────────────────────────────────────
+ * 設問セットとモデルの版。再診断の差分・根拠追跡のためレポートに刻印する。 */
+const MODEL_VERSION = '0.1.0';
+const QUESTION_SET_VERSION = '2026-06-15';
+
+/* ── Category context (UX5) ──────────────────────────────────────────────────
+ * 各領域に入る前に「目的」と所要時間目安を提示し、自己申告の文脈を整える。 */
+const CATEGORY_INTRO = {
+  governance:   { purpose: 'AIをどこで・誰の責任で使うかを明確にし、場当たり利用を防ぎます。', estimatedMinutes: 2 },
+  instructions: { purpose: 'AGENTS.md / CLAUDE.md などでAIへの指示を安定させ、作業品質のばらつきを抑えます。', estimatedMinutes: 2 },
+  requirements: { purpose: 'AIが推測ではなく、明示された要件・コンテキストで作業できる状態をつくります。', estimatedMinutes: 2 },
+  review:       { purpose: 'AI特有のもっともらしい誤り・前提誤り・スコープ逸脱をレビューで検出します。', estimatedMinutes: 2 },
+  testing:      { purpose: 'AI支援の変更を、テストと退行確認で守れているかを確認します。', estimatedMinutes: 2 },
+  cicd:         { purpose: 'lint/test/build/secret scan 等の品質ゲートで最低品質を固定します。', estimatedMinutes: 2 },
+  security:     { purpose: '秘密情報・個人情報・依存関係・契約制約を管理できているかを確認します。', estimatedMinutes: 2 },
+  traceability: { purpose: '要件・Issue・PR・テスト・リリースを相互に追跡できる状態を確認します。', estimatedMinutes: 2 },
+  selfaudit:    { purpose: 'AI自身に実装前・PR前・マージ前の自己点検をさせる仕組みを確認します。', estimatedMinutes: 2 },
+  metrics:      { purpose: 'AI活用を速度だけでなく、品質・手戻り・リスクの観点で評価できているかを確認します。', estimatedMinutes: 2 },
+};
+
+/* ── Non-breaking field augmentation ─────────────────────────────────────────
+ * 既存の設問オブジェクトを直接書き換えず、ロード時に既定値を補完する。
+ *  - weight (AL5): カテゴリ内の設問重要度。暫定で均一 1.0。値の根拠化はリサーチゲート後。
+ *  - evidenceRefs (C3 / A5土台): 根拠ソースID。暫定で空。
+ *  - memoPrompt (FT4): 証跡メモ入力のプレースホルダ。 */
+CATEGORIES.forEach(c => {
+  const intro = CATEGORY_INTRO[c.key] || {};
+  if (c.purpose === undefined) c.purpose = intro.purpose || '';
+  if (c.estimatedMinutes === undefined) c.estimatedMinutes = intro.estimatedMinutes || 2;
+});
+QUESTIONS.forEach(q => {
+  if (q.weight === undefined) q.weight = 1.0;
+  if (q.evidenceRefs === undefined) q.evidenceRefs = [];
+  if (q.memoPrompt === undefined) {
+    q.memoPrompt = '根拠・証跡（リポジトリのファイルパス、Issue/PR番号、確認事項など）を任意で記録';
+  }
+});
+
+/* Node (test harness) からの参照用。ブラウザ実行時の挙動には影響しない。 */
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { QUESTIONS, CATEGORIES, CATEGORY_INTRO, MODEL_VERSION, QUESTION_SET_VERSION };
+}

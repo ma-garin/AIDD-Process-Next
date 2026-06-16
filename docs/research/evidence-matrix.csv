@@ -1,0 +1,4 @@
+source_id,title,type,year,authors,source_category,credibility,claim,maps_to,disposition,rationale,copyright_risk,url,reviewed_by
+S-0001,ISO/IEC 25010 Systems and software quality models,standard,2011,ISO/IEC,standard,high,ソフトウェア品質特性を保守性・信頼性等の観点で分類できる,test-01,adapt,公開規格の一般的な品質特性概念を独自設問の枠組みとして翻案,low,https://www.iso.org/standard/35733.html,TBD
+S-0002,ISTQB Foundation Level Syllabus (一般用語),standard,2023,ISTQB,standard,high,テストプロセスとテスト設計技法の一般的な共通用語が存在する,test-02,adapt,一般公開用語のみ参照し文章は流用しない,medium,https://www.istqb.org/,TBD
+S-0003,(プレースホルダ) AI支援開発のレビュー指針に関する公開解説,article,2025,TBD,AIDD,med,AI生成コードはもっともらしい誤りを含むため人間レビューが必要,review-01,monitor,一次情報の信頼度を再確認のうえ採否を判断,low,TBD,TBD

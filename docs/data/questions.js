@@ -3,7 +3,7 @@
  * 本モデルは300件規模の根拠レビュー完了前の検証前ドラフトです。
  */
 
-const CATEGORIES = [
+const CATEGORIES_DEFAULT = [
   {
     "id": 1,
     "key": "governance",
@@ -76,7 +76,7 @@ const CATEGORIES = [
   }
 ];
 
-const QUESTIONS = [
+const QUESTIONS_DEFAULT = [
   {
     "id": "C1-Q1",
     "categoryId": 1,
@@ -1678,3 +1678,18 @@ const QUESTIONS = [
     "aiSelfCheck": "今回得た知見を、再利用可能なテンプレートや手順に反映する。"
   }
 ];
+
+let CATEGORIES = [];
+let QUESTIONS = [];
+
+(function initAppData() {
+  try {
+    const cs = localStorage.getItem('aidd_categories');
+    const qs = localStorage.getItem('aidd_questions');
+    CATEGORIES = cs ? JSON.parse(cs) : CATEGORIES_DEFAULT.map(c => ({ ...c }));
+    QUESTIONS = qs ? JSON.parse(qs) : QUESTIONS_DEFAULT.map(q => ({ ...q, choices: q.choices.map(ch => ({ ...ch })) }));
+  } catch (e) {
+    CATEGORIES = CATEGORIES_DEFAULT.map(c => ({ ...c }));
+    QUESTIONS = QUESTIONS_DEFAULT.map(q => ({ ...q, choices: q.choices.map(ch => ({ ...ch })) }));
+  }
+})();

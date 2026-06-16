@@ -3,6 +3,9 @@
  */
 
 const App = (function () {
+  // Simple client-side access control (not cryptographic security).
+  const ADMIN_PASSWORD = 'aidd2024';
+
   const INITIAL_STATE = {
     screen: 'welcome',
     answers: {},
@@ -12,9 +15,16 @@ const App = (function () {
     results: null,
     selfCheckTab: 'pre-impl',
     radarChart: null,
+    mode: 'guest',
+    adminTab: 'categories',
   };
 
   let state = { ...INITIAL_STATE };
+
+  // Ephemeral admin editor state (not part of immutable app state)
+  let _adminEditingCatId = null;
+  let _adminEditingQId = null;
+  let _adminQCatFilter = null;
 
   function setState(partial) {
     const prev = state;
@@ -151,6 +161,12 @@ const App = (function () {
     document.querySelectorAll('.sidenav-context').forEach(s => s.classList.remove('active'));
     document.getElementById('sidenav-' + state.screen)?.classList.add('active');
 
+    // Update admin nav button label
+    const adminBtn = document.getElementById('admin-nav-btn');
+    if (adminBtn) {
+      adminBtn.textContent = state.mode === 'admin' ? '管理者モード中' : '管理者ログイン';
+    }
+
     switch (state.screen) {
       case 'welcome':    renderWelcome(); break;
       case 'assessment': renderAssessment(); break;
@@ -160,6 +176,7 @@ const App = (function () {
       case 'help':       if (screenChanged) renderHelp(); break;
       case 'catalog':    if (screenChanged) renderCatalog(); break;
       case 'rationale':  if (screenChanged) renderRationale(); break;
+      case 'admin':      renderAdmin(); break;
     }
   }
 
@@ -1022,6 +1039,386 @@ const App = (function () {
     return { human: '人間', ai: 'AIエージェント', repo: 'リポジトリ' }[target] || target;
   }
 
+  // ── Admin mode ─────────────────────────────────────────────────────────────
+
+  function adminNavClick() {
+    if (state.mode === 'admin') {
+      setState({ screen: 'admin' });
+    } else {
+      showAdminLoginModal();
+    }
+  }
+
+  function showAdminLoginModal() {
+    const modal = document.getElementById('admin-login-modal');
+    const input = document.getElementById('admin-password-input');
+    const err = document.getElementById('admin-login-error');
+    if (modal) modal.hidden = false;
+    if (input) { input.value = ''; input.focus(); }
+    if (err) err.hidden = true;
+  }
+
+  function adminLoginSubmit() {
+    const input = document.getElementById('admin-password-input');
+    const err = document.getElementById('admin-login-error');
+    const val = input ? input.value : '';
+    if (val === ADMIN_PASSWORD) {
+      document.getElementById('admin-login-modal').hidden = true;
+      setState({ mode: 'admin', screen: 'admin', adminTab: 'categories' });
+    } else {
+      if (err) err.hidden = false;
+      if (input) { input.value = ''; input.focus(); }
+    }
+  }
+
+  function adminLoginCancel() {
+    document.getElementById('admin-login-modal').hidden = true;
+  }
+
+  function adminLogout() {
+    setState({ mode: 'guest', screen: 'welcome' });
+  }
+
+  function adminShowTab(tab) {
+    state = { ...state, adminTab: tab };
+    renderAdmin();
+  }
+
+  function adminResetData() {
+    if (!confirm('すべてのカスタムデータを削除し、初期データに戻します。よろしいですか？')) return;
+    localStorage.removeItem('aidd_categories');
+    localStorage.removeItem('aidd_questions');
+    // Re-initialize global data
+    CATEGORIES.length = 0;
+    CATEGORIES_DEFAULT.forEach(c => CATEGORIES.push({ ...c }));
+    QUESTIONS.length = 0;
+    QUESTIONS_DEFAULT.forEach(q => QUESTIONS.push({ ...q, choices: q.choices.map(ch => ({ ...ch })) }));
+    renderAdmin();
+  }
+
+  function renderAdmin() {
+    const container = document.getElementById('admin-content');
+    if (!container) return;
+
+    const tabCategories = state.adminTab === 'categories';
+    const tabQuestions = state.adminTab === 'questions';
+
+    container.innerHTML = `
+      <div class="content-main content-main-wide">
+        <div class="content-hero">
+          <div class="content-badge">管理者モード</div>
+          <h1 class="content-title">診断データ管理</h1>
+          <p class="content-lead">診断領域・設問・選択肢の追加・編集・削除ができます。</p>
+        </div>
+
+        <div class="admin-tabs" role="tablist">
+          <button class="admin-tab-btn ${tabCategories ? 'active' : ''}"
+                  role="tab" aria-selected="${tabCategories}"
+                  data-admin-tab="categories">診断領域（${CATEGORIES.length}件）</button>
+          <button class="admin-tab-btn ${tabQuestions ? 'active' : ''}"
+                  role="tab" aria-selected="${tabQuestions}"
+                  data-admin-tab="questions">設問（${QUESTIONS.length}件）</button>
+        </div>
+
+        <div class="admin-tab-content" id="admin-tab-content">
+          ${tabCategories ? renderAdminCategoriesTab() : renderAdminQuestionsTab()}
+        </div>
+      </div>
+    `;
+
+    document.getElementById('admin-tab-content')?.addEventListener('click', handleAdminContentClick);
+    document.getElementById('admin-tab-content')?.addEventListener('change', handleAdminContentChange);
+    container.querySelector('.admin-tabs')?.addEventListener('click', e => {
+      const btn = e.target.closest('[data-admin-tab]');
+      if (btn) adminShowTab(btn.dataset.adminTab);
+    });
+  }
+
+  function renderAdminCategoriesTab() {
+    const rows = CATEGORIES.map(c => `
+      <tr>
+        <td class="admin-td">${escapeHtml(String(c.id))}</td>
+        <td class="admin-td">${escapeHtml(c.name)}</td>
+        <td class="admin-td">${escapeHtml(c.abbr || '')}</td>
+        <td class="admin-td">${escapeHtml(String(c.weight ?? 1))}</td>
+        <td class="admin-td admin-actions-cell">
+          <button class="btn-admin-edit" data-action="edit-cat" data-id="${escapeHtml(String(c.id))}">編集</button>
+          <button class="btn-admin-delete" data-action="delete-cat" data-id="${escapeHtml(String(c.id))}">削除</button>
+        </td>
+      </tr>
+    `).join('');
+
+    return `
+      <div class="admin-toolbar">
+        <button class="btn btn-primary btn-sm" data-action="new-cat">＋ 新規追加</button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr>
+            <th class="admin-th">ID</th>
+            <th class="admin-th">領域名</th>
+            <th class="admin-th">略称</th>
+            <th class="admin-th">重み</th>
+            <th class="admin-th">操作</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function renderAdminQuestionsTab() {
+    const catOptions = CATEGORIES.map(c =>
+      `<option value="${c.id}" ${_adminQCatFilter === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`
+    ).join('');
+
+    const filtered = _adminQCatFilter
+      ? QUESTIONS.filter(q => q.categoryId === _adminQCatFilter)
+      : QUESTIONS;
+
+    const catMap = Object.fromEntries(CATEGORIES.map(c => [c.id, c.name]));
+    const rows = filtered.map(q => `
+      <tr>
+        <td class="admin-td">${escapeHtml(String(q.id))}</td>
+        <td class="admin-td">${escapeHtml(catMap[q.categoryId] || String(q.categoryId))}</td>
+        <td class="admin-td">${escapeHtml(q.target || '')}</td>
+        <td class="admin-td admin-td-long">${escapeHtml(q.question.slice(0, 60))}${q.question.length > 60 ? '…' : ''}</td>
+        <td class="admin-td admin-actions-cell">
+          <button class="btn-admin-edit" data-action="edit-q" data-id="${escapeHtml(String(q.id))}">編集</button>
+          <button class="btn-admin-delete" data-action="delete-q" data-id="${escapeHtml(String(q.id))}">削除</button>
+        </td>
+      </tr>
+    `).join('');
+
+    return `
+      <div class="admin-toolbar">
+        <select class="admin-filter-select" data-action="filter-q-cat">
+          <option value="">すべての領域</option>
+          ${catOptions}
+        </select>
+        <button class="btn btn-primary btn-sm" data-action="new-q">＋ 新規追加</button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr>
+            <th class="admin-th">ID</th>
+            <th class="admin-th">診断領域</th>
+            <th class="admin-th">対象</th>
+            <th class="admin-th">設問文</th>
+            <th class="admin-th">操作</th>
+          </tr></thead>
+          <tbody>${rows || '<tr><td colspan="5" class="admin-td">設問がありません</td></tr>'}</tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function handleAdminContentClick(e) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    const id = btn.dataset.id;
+    if (action === 'new-cat') openCategoryModal(null);
+    else if (action === 'edit-cat') openCategoryModal(id);
+    else if (action === 'delete-cat') adminDeleteCategory(id);
+    else if (action === 'new-q') openQuestionModal(null);
+    else if (action === 'edit-q') openQuestionModal(id);
+    else if (action === 'delete-q') adminDeleteQuestion(id);
+  }
+
+  function handleAdminContentChange(e) {
+    if (e.target.dataset.action === 'filter-q-cat') {
+      const val = e.target.value;
+      _adminQCatFilter = val ? parseInt(val, 10) : null;
+      document.getElementById('admin-tab-content').innerHTML = renderAdminQuestionsTab();
+      document.getElementById('admin-tab-content').addEventListener('click', handleAdminContentClick);
+      document.getElementById('admin-tab-content').addEventListener('change', handleAdminContentChange);
+    }
+  }
+
+  // ── Category CRUD ──────────────────────────────────────────────────────────
+
+  function openCategoryModal(id) {
+    _adminEditingCatId = id ? parseInt(id, 10) : null;
+    const modal = document.getElementById('category-modal');
+    const titleEl = document.getElementById('category-modal-title');
+    if (!modal) return;
+
+    if (_adminEditingCatId !== null) {
+      const cat = CATEGORIES.find(c => c.id === _adminEditingCatId);
+      if (!cat) return;
+      document.getElementById('category-modal-id').value = cat.id;
+      document.getElementById('category-modal-name').value = cat.name;
+      document.getElementById('category-modal-abbr').value = cat.abbr || '';
+      document.getElementById('category-modal-weight').value = cat.weight ?? 1;
+      if (titleEl) titleEl.textContent = '診断領域を編集';
+    } else {
+      document.getElementById('category-modal-id').value = '';
+      document.getElementById('category-modal-name').value = '';
+      document.getElementById('category-modal-abbr').value = '';
+      document.getElementById('category-modal-weight').value = '1';
+      if (titleEl) titleEl.textContent = '診断領域を新規追加';
+    }
+    modal.hidden = false;
+    document.getElementById('category-modal-name').focus();
+  }
+
+  function categoryModalCancel() {
+    document.getElementById('category-modal').hidden = true;
+    _adminEditingCatId = null;
+  }
+
+  function categoryModalSave() {
+    const name = document.getElementById('category-modal-name').value.trim();
+    const abbr = document.getElementById('category-modal-abbr').value.trim();
+    const weight = parseFloat(document.getElementById('category-modal-weight').value);
+
+    if (!name) { alert('領域名を入力してください。'); return; }
+    if (isNaN(weight) || weight < 0.1 || weight > 1.0) { alert('重みは0.1〜1.0で入力してください。'); return; }
+
+    if (_adminEditingCatId !== null) {
+      const idx = CATEGORIES.findIndex(c => c.id === _adminEditingCatId);
+      if (idx >= 0) {
+        CATEGORIES[idx] = { ...CATEGORIES[idx], name, abbr, weight };
+      }
+    } else {
+      const newId = CATEGORIES.length > 0 ? Math.max(...CATEGORIES.map(c => c.id)) + 1 : 1;
+      CATEGORIES.push({ id: newId, key: 'custom_' + newId, name, abbr, weight });
+    }
+
+    persistAdminData();
+    document.getElementById('category-modal').hidden = true;
+    _adminEditingCatId = null;
+    renderAdmin();
+  }
+
+  function adminDeleteCategory(id) {
+    const catId = parseInt(id, 10);
+    const cat = CATEGORIES.find(c => c.id === catId);
+    if (!cat) return;
+    const qCount = QUESTIONS.filter(q => q.categoryId === catId).length;
+    const msg = qCount > 0
+      ? `「${cat.name}」を削除すると、この領域の設問${qCount}件も削除されます。よろしいですか？`
+      : `「${cat.name}」を削除しますか？`;
+    if (!confirm(msg)) return;
+
+    const catIdx = CATEGORIES.findIndex(c => c.id === catId);
+    CATEGORIES.splice(catIdx, 1);
+    // Remove questions belonging to this category
+    for (let i = QUESTIONS.length - 1; i >= 0; i--) {
+      if (QUESTIONS[i].categoryId === catId) QUESTIONS.splice(i, 1);
+    }
+    persistAdminData();
+    renderAdmin();
+  }
+
+  // ── Question CRUD ──────────────────────────────────────────────────────────
+
+  function openQuestionModal(id) {
+    _adminEditingQId = id ? String(id) : null;
+    const modal = document.getElementById('question-modal');
+    const titleEl = document.getElementById('question-modal-title');
+    if (!modal) return;
+
+    // Populate category select
+    const catSel = document.getElementById('question-modal-cat');
+    if (catSel) {
+      catSel.innerHTML = CATEGORIES.map(c =>
+        `<option value="${c.id}">${escapeHtml(c.name)}</option>`
+      ).join('');
+    }
+
+    if (_adminEditingQId !== null) {
+      const q = QUESTIONS.find(q => String(q.id) === _adminEditingQId);
+      if (!q) return;
+      document.getElementById('question-modal-id').value = q.id;
+      if (catSel) catSel.value = q.categoryId;
+      document.getElementById('question-modal-target').value = q.target || '人';
+      document.getElementById('question-modal-text').value = q.question;
+      for (let i = 0; i <= 3; i++) {
+        const ch = q.choices.find(c => c.score === i);
+        const inp = document.getElementById('qm-choice-' + i);
+        if (inp) inp.value = ch ? (ch.label + (ch.description ? '：' + ch.description : '')) : '';
+      }
+      document.getElementById('question-modal-risk').value = q.riskIfLow || '';
+      document.getElementById('question-modal-rec').value = q.recommendation || '';
+      if (titleEl) titleEl.textContent = '設問を編集';
+    } else {
+      document.getElementById('question-modal-id').value = '';
+      if (catSel && CATEGORIES.length) catSel.value = CATEGORIES[0].id;
+      document.getElementById('question-modal-target').value = '人';
+      document.getElementById('question-modal-text').value = '';
+      for (let i = 0; i <= 3; i++) {
+        const inp = document.getElementById('qm-choice-' + i);
+        if (inp) inp.value = '';
+      }
+      document.getElementById('question-modal-risk').value = '';
+      document.getElementById('question-modal-rec').value = '';
+      if (titleEl) titleEl.textContent = '設問を新規追加';
+    }
+
+    modal.hidden = false;
+    document.getElementById('question-modal-text').focus();
+  }
+
+  function questionModalCancel() {
+    document.getElementById('question-modal').hidden = true;
+    _adminEditingQId = null;
+  }
+
+  function questionModalSave() {
+    const catId = parseInt(document.getElementById('question-modal-cat').value, 10);
+    const target = document.getElementById('question-modal-target').value.trim();
+    const question = document.getElementById('question-modal-text').value.trim();
+    const riskIfLow = document.getElementById('question-modal-risk').value.trim();
+    const recommendation = document.getElementById('question-modal-rec').value.trim();
+
+    if (!question) { alert('設問文を入力してください。'); return; }
+
+    const choices = [0, 1, 2, 3].map(i => {
+      const raw = (document.getElementById('qm-choice-' + i)?.value || '').trim();
+      const sepIdx = raw.indexOf('：');
+      const label = sepIdx >= 0 ? raw.slice(0, sepIdx).trim() : raw;
+      const description = sepIdx >= 0 ? raw.slice(sepIdx + 1).trim() : '';
+      return { score: i, label: label || String(i), description };
+    });
+
+    if (_adminEditingQId !== null) {
+      const idx = QUESTIONS.findIndex(q => String(q.id) === _adminEditingQId);
+      if (idx >= 0) {
+        QUESTIONS[idx] = { ...QUESTIONS[idx], categoryId: catId, target, question, choices, riskIfLow, recommendation };
+      }
+    } else {
+      const maxId = QUESTIONS.length > 0 ? Math.max(...QUESTIONS.map(q => typeof q.id === 'number' ? q.id : 0)) : 0;
+      const newId = maxId + 1;
+      QUESTIONS.push({ id: newId, categoryId: catId, target, question, choices, riskIfLow, recommendation, issueTemplate: '', aiSelfCheck: '' });
+    }
+
+    persistAdminData();
+    document.getElementById('question-modal').hidden = true;
+    _adminEditingQId = null;
+    renderAdmin();
+  }
+
+  function adminDeleteQuestion(id) {
+    const q = QUESTIONS.find(q => String(q.id) === String(id));
+    if (!q) return;
+    if (!confirm(`「${q.question.slice(0, 40)}…」を削除しますか？`)) return;
+    const idx = QUESTIONS.findIndex(q => String(q.id) === String(id));
+    if (idx >= 0) QUESTIONS.splice(idx, 1);
+    persistAdminData();
+    renderAdmin();
+  }
+
+  function persistAdminData() {
+    try {
+      localStorage.setItem('aidd_categories', JSON.stringify(CATEGORIES));
+      localStorage.setItem('aidd_questions', JSON.stringify(QUESTIONS));
+    } catch (e) {
+      alert('データの保存に失敗しました。ローカルストレージの容量を確認してください。');
+    }
+  }
+
   // ── Event delegation (no inline handlers in dynamic HTML) ─────────────────
 
   function initEventDelegation() {
@@ -1053,6 +1450,22 @@ const App = (function () {
         .forEach(b => b.classList.toggle('active', b === btn));
       switchSelfCheckTab(btn.dataset.tab);
     });
+
+    // Admin login: Enter key in password field
+    document.getElementById('admin-password-input')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') adminLoginSubmit();
+    });
+
+    // Close modals on overlay click
+    ['admin-login-modal', 'category-modal', 'question-modal'].forEach(id => {
+      document.getElementById(id)?.addEventListener('click', e => {
+        if (e.target.id === id) {
+          if (id === 'admin-login-modal') adminLoginCancel();
+          else if (id === 'category-modal') categoryModalCancel();
+          else if (id === 'question-modal') questionModalCancel();
+        }
+      });
+    });
   }
 
   // Initialize on load — check for shared URL state before rendering
@@ -1075,5 +1488,9 @@ const App = (function () {
     selectAnswer, toggleNA, viewResults,
     switchSelfCheckTab, copyReport, copySelfCheck,
     copyShareURL, dismissURLBanner,
+    adminNavClick, adminLoginSubmit, adminLoginCancel, adminLogout,
+    adminShowTab, adminResetData,
+    categoryModalSave, categoryModalCancel,
+    questionModalSave, questionModalCancel,
   };
 })();

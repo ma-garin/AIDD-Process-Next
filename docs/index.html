@@ -38,6 +38,7 @@
       <button class="shell-header-link" onclick="App.goTo('catalog')">診断項目一覧</button>
       <button class="shell-header-link" onclick="App.goTo('rationale')">根拠・論拠</button>
       <button class="shell-header-link" onclick="App.goTo('help')">ヘルプ</button>
+      <button class="shell-header-link shell-admin-btn" id="admin-nav-btn" onclick="App.adminNavClick()">管理者ログイン</button>
     </nav>
     <div class="shell-header-right">
       <span class="shell-version-badge">v0.1 · 検証前ドラフト</span>
@@ -219,6 +220,38 @@
         </div>
         <div class="sidenav-actions">
           <button class="btn btn-primary btn-block" onclick="App.startFresh()">診断を開始</button>
+        </div>
+      </div>
+
+      <!-- Admin context -->
+      <div id="sidenav-admin" class="sidenav-context">
+        <div class="sidenav-header-block">
+          <button class="back-btn" onclick="App.goTo('welcome')" aria-label="トップへ戻る">← トップへ戻る</button>
+        </div>
+        <div class="sidenav-section">
+          <p class="sidenav-section-title">管理者メニュー</p>
+          <ul class="sidenav-list">
+            <li class="sidenav-item sidenav-cta" onclick="App.adminShowTab('categories')" role="button" tabindex="0">
+              <span class="sidenav-icon" aria-hidden="true">≡</span>
+              <span>診断領域管理</span>
+            </li>
+            <li class="sidenav-item sidenav-cta" onclick="App.adminShowTab('questions')" role="button" tabindex="0">
+              <span class="sidenav-icon" aria-hidden="true">?</span>
+              <span>設問管理</span>
+            </li>
+          </ul>
+        </div>
+        <div class="sidenav-section">
+          <p class="sidenav-section-title">データ操作</p>
+          <ul class="sidenav-list">
+            <li class="sidenav-item sidenav-cta admin-danger-item" onclick="App.adminResetData()" role="button" tabindex="0">
+              <span class="sidenav-icon" aria-hidden="true">↺</span>
+              <span>初期データに戻す</span>
+            </li>
+          </ul>
+        </div>
+        <div class="sidenav-actions">
+          <button class="btn btn-outline btn-block" onclick="App.adminLogout()">ログアウト</button>
         </div>
       </div>
 
@@ -455,9 +488,100 @@
         <div id="rationale-content" class="content-screen-main"></div>
       </div>
 
+      <!-- ── ADMIN ─────────────────────────────────────────────────────────── -->
+      <div id="screen-admin" class="screen">
+        <div id="admin-content" class="content-screen-main admin-screen"></div>
+      </div>
+
     </div><!-- #app -->
   </div><!-- .shell-body -->
 </div><!-- #shell -->
+
+<!-- Admin Login Modal -->
+<div id="admin-login-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="admin-login-title" hidden>
+  <div class="modal-box">
+    <h2 class="modal-title" id="admin-login-title">管理者ログイン</h2>
+    <p class="modal-desc">管理者パスワードを入力してください。</p>
+    <div class="modal-field">
+      <label for="admin-password-input" class="modal-label">パスワード</label>
+      <input id="admin-password-input" type="password" class="modal-input" placeholder="パスワードを入力" autocomplete="current-password">
+    </div>
+    <div id="admin-login-error" class="modal-error" hidden>パスワードが正しくありません。</div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="App.adminLoginCancel()">キャンセル</button>
+      <button class="btn btn-primary" onclick="App.adminLoginSubmit()">ログイン</button>
+    </div>
+  </div>
+</div>
+
+<!-- Category Edit Modal -->
+<div id="category-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="category-modal-title" hidden>
+  <div class="modal-box modal-box-wide">
+    <h2 class="modal-title" id="category-modal-title">診断領域を編集</h2>
+    <input type="hidden" id="category-modal-id">
+    <div class="modal-field">
+      <label for="category-modal-name" class="modal-label">領域名</label>
+      <input id="category-modal-name" type="text" class="modal-input" maxlength="50">
+    </div>
+    <div class="modal-field">
+      <label for="category-modal-abbr" class="modal-label">略称</label>
+      <input id="category-modal-abbr" type="text" class="modal-input" maxlength="10">
+    </div>
+    <div class="modal-field">
+      <label for="category-modal-weight" class="modal-label">重み（0.1〜1.0）</label>
+      <input id="category-modal-weight" type="number" class="modal-input" min="0.1" max="1.0" step="0.1">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="App.categoryModalCancel()">キャンセル</button>
+      <button class="btn btn-primary" onclick="App.categoryModalSave()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Question Edit Modal -->
+<div id="question-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="question-modal-title" hidden>
+  <div class="modal-box modal-box-wide">
+    <h2 class="modal-title" id="question-modal-title">設問を編集</h2>
+    <input type="hidden" id="question-modal-id">
+    <div class="modal-field">
+      <label for="question-modal-cat" class="modal-label">診断領域</label>
+      <select id="question-modal-cat" class="modal-input modal-select"></select>
+    </div>
+    <div class="modal-field">
+      <label for="question-modal-target" class="modal-label">評価対象</label>
+      <select id="question-modal-target" class="modal-input modal-select">
+        <option value="人">人</option>
+        <option value="AIエージェント">AIエージェント</option>
+        <option value="リポジトリ">リポジトリ</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label for="question-modal-text" class="modal-label">設問文</label>
+      <textarea id="question-modal-text" class="modal-input modal-textarea" rows="3" maxlength="300"></textarea>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">選択肢（0〜3）</label>
+      <div class="modal-choices">
+        <div class="modal-choice-row"><span class="modal-choice-score">0</span><input type="text" class="modal-input modal-choice-input" id="qm-choice-0" maxlength="100"></div>
+        <div class="modal-choice-row"><span class="modal-choice-score">1</span><input type="text" class="modal-input modal-choice-input" id="qm-choice-1" maxlength="100"></div>
+        <div class="modal-choice-row"><span class="modal-choice-score">2</span><input type="text" class="modal-input modal-choice-input" id="qm-choice-2" maxlength="100"></div>
+        <div class="modal-choice-row"><span class="modal-choice-score">3</span><input type="text" class="modal-input modal-choice-input" id="qm-choice-3" maxlength="100"></div>
+      </div>
+    </div>
+    <div class="modal-field">
+      <label for="question-modal-risk" class="modal-label">スコアが低い場合のリスク</label>
+      <textarea id="question-modal-risk" class="modal-input modal-textarea" rows="2" maxlength="200"></textarea>
+    </div>
+    <div class="modal-field">
+      <label for="question-modal-rec" class="modal-label">推奨改善策</label>
+      <textarea id="question-modal-rec" class="modal-input modal-textarea" rows="2" maxlength="200"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="App.questionModalCancel()">キャンセル</button>
+      <button class="btn btn-primary" onclick="App.questionModalSave()">保存</button>
+    </div>
+  </div>
+</div>
 
 <script src="data/questions.js"></script>
 <script src="data/sample-answers.js"></script>

@@ -7,41 +7,48 @@
   <meta name="description" content="AI駆動開発プロセスの品質成熟度を、10領域・50問で自己診断し、改善IssueとAIエージェント向け自己点検プロンプトを生成します。">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
+<!-- URL import banner (always visible) -->
 <div class="url-import-banner" id="url-import-banner" role="status" aria-live="polite" hidden>
   <span>共有URLから回答を読み込みました。内容を確認してから診断を進めてください。</span>
   <button class="url-import-dismiss" onclick="App.dismissURLBanner()" aria-label="閉じる">×</button>
 </div>
-<div id="app">
 
-  <!-- ── WELCOME ─────────────────────────────────────────────────────────── -->
-  <div id="screen-welcome" class="screen active">
+<!-- Copy toast notification (global) -->
+<div id="copy-toast" class="copy-toast" aria-live="polite"></div>
 
-    <!-- Carbon Shell Header -->
-    <header class="shell-header" role="banner">
-      <div class="shell-header-left">
-        <div class="shell-brand-mark" aria-hidden="true">A</div>
-        <span class="shell-brand-name">AIDD Process Next</span>
-        <span class="shell-brand-divider" aria-hidden="true"></span>
-        <span class="shell-brand-subtitle">AI駆動開発 品質成熟度アセスメント</span>
-      </div>
-      <nav class="shell-header-nav" aria-label="グローバルナビゲーション">
-        <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer" class="shell-header-link">GitHub</a>
-      </nav>
-      <div class="shell-header-right">
-        <span class="shell-version-badge">v0.1 · 検証前ドラフト</span>
-      </div>
-    </header>
+<!-- ── Global Shell (header + body, always visible) ──────────────────────── -->
+<div id="shell">
 
-    <!-- Shell Body: Side Nav + Main -->
-    <div class="shell-body">
+  <!-- Always-visible header -->
+  <header class="shell-header" role="banner">
+    <div class="shell-header-left">
+      <div class="shell-brand-mark" aria-hidden="true">A</div>
+      <span class="shell-brand-name">AIDD Process Next</span>
+      <span class="shell-brand-divider" aria-hidden="true"></span>
+      <span class="shell-brand-subtitle">AI駆動開発 品質成熟度アセスメント</span>
+    </div>
+    <nav class="shell-header-nav" aria-label="グローバルナビゲーション">
+      <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer" class="shell-header-link">GitHub</a>
+    </nav>
+    <div class="shell-header-right">
+      <span class="shell-version-badge">v0.1 · 検証前ドラフト</span>
+    </div>
+  </header>
 
-      <!-- Left Side Navigation (Carbon-style) -->
-      <nav class="shell-sidenav" aria-label="サイドナビゲーション">
+  <!-- Shell body: persistent sidenav + screen content -->
+  <div class="shell-body">
+
+    <!-- Always-visible side navigation (context switches per screen) -->
+    <nav class="shell-sidenav" id="shell-sidenav" aria-label="サイドナビゲーション">
+
+      <!-- Welcome context -->
+      <div id="sidenav-welcome" class="sidenav-context active">
         <div class="sidenav-section">
           <p class="sidenav-section-title">メニュー</p>
           <ul class="sidenav-list">
@@ -59,295 +66,293 @@
             </li>
           </ul>
         </div>
-
         <div class="sidenav-divider" role="separator"></div>
-
-        <div class="sidenav-section">
+        <div class="sidenav-section sidenav-section-scroll">
           <p class="sidenav-section-title">診断領域（10領域）</p>
           <ul class="sidenav-list" id="welcome-areas-nav" aria-label="診断領域一覧"></ul>
         </div>
-
         <div class="sidenav-footer">
           <span>v0.1 · 検証前ドラフト</span>
           <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
-      </nav>
-
-      <!-- Main Content -->
-      <main class="shell-main" id="shell-main">
-        <div class="welcome-hero">
-          <div class="product-badge">v0.1 · 検証前ドラフト</div>
-          <h1 class="product-title">AIDD Process Next</h1>
-          <p class="product-subtitle">AI駆動開発<br>品質成熟度アセスメント</p>
-          <p class="product-desc">
-            AIを使った開発が「属人的・場当たり的」になっていないかを確認し、
-            人・AIエージェント・リポジトリ証跡の3視点から改善課題を整理します。
-          </p>
-          <div class="project-name-row">
-            <label for="project-name-input">対象プロジェクト</label>
-            <input id="project-name-input" type="text" placeholder="例：顧客ポータル刷新PJ（任意）" maxlength="100">
-          </div>
-          <div class="welcome-actions">
-            <button class="btn btn-primary" onclick="App.startFresh()">診断を開始</button>
-            <button class="btn btn-secondary" onclick="App.loadSample()">サンプルで確認</button>
-          </div>
-        </div>
-
-        <div class="welcome-info">
-          <div class="info-card">
-            <span class="info-icon" aria-hidden="true">守</span>
-            <div>
-              <strong>情報の扱い</strong>
-              <p>入力内容は外部送信されません。ブラウザ内で処理します。機密情報・認証情報・個人情報は入力しないでください。</p>
-            </div>
-          </div>
-          <div class="info-card">
-            <span class="info-icon" aria-hidden="true">暫</span>
-            <div>
-              <strong>ドラフト扱い</strong>
-              <p>本モデルは検証前です。300件規模の根拠レビュー完了までは、認証・監査基準ではなく改善のたたき台として扱います。</p>
-            </div>
-          </div>
-          <div class="info-card">
-            <span class="info-icon" aria-hidden="true">用</span>
-            <div>
-              <strong>想定ユースケース</strong>
-              <p>本ツールはAI駆動開発の現状把握と改善の起点として利用します。コンサルタントや品質担当者がチームと結果を議論し、改善ロードマップを策定する場面を想定しています。</p>
-            </div>
-          </div>
-        </div>
-
-        <footer class="page-footer">
-          <span class="page-footer-brand">AIDD Process Next</span>
-          <span class="page-footer-sep">·</span>
-          <span>v0.1 · 検証前ドラフト</span>
-          <span class="page-footer-sep">·</span>
-          <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <span class="page-footer-sep">·</span>
-          <span>ブラウザ完結 · データ外部送信なし</span>
-        </footer>
-      </main>
-
-    </div><!-- .shell-body -->
-  </div>
-
-  <!-- ── ASSESSMENT ──────────────────────────────────────────────────────── -->
-  <div id="screen-assessment" class="screen">
-    <aside class="sidebar" role="navigation" aria-label="診断カテゴリナビゲーション">
-      <div class="sidebar-header">
-        <div class="sidebar-brand">
-          <div class="sidebar-brand-mark" aria-hidden="true">A</div>
-          <span class="sidebar-brand-text">AIDD Process Next</span>
-        </div>
-        <button class="back-btn" onclick="App.goTo('welcome')" aria-label="トップへ戻る">← トップへ戻る</button>
-        <span class="progress-label" aria-live="polite">
-          回答済み <span id="total-answered">0</span> / <span id="total-questions">50</span>
-        </span>
       </div>
-      <nav class="category-nav" id="category-nav" aria-label="診断カテゴリ"></nav>
-      <div class="sidebar-footer">
-        <button class="btn btn-primary btn-block" onclick="App.viewResults()">結果を見る</button>
-        <div class="sidebar-meta">
+
+      <!-- Assessment context -->
+      <div id="sidenav-assessment" class="sidenav-context">
+        <div class="sidenav-header-block">
+          <button class="back-btn" onclick="App.goTo('welcome')" aria-label="トップへ戻る">← トップへ戻る</button>
+          <span class="progress-label" aria-live="polite">
+            回答済み <span id="total-answered">0</span> / <span id="total-questions">50</span>
+          </span>
+        </div>
+        <nav class="category-nav" id="category-nav" aria-label="診断カテゴリ"></nav>
+        <div class="sidenav-actions">
+          <button class="btn btn-primary btn-block" onclick="App.viewResults()">結果を見る</button>
+          <div class="sidebar-meta">
+            <span>v0.1 · 検証前ドラフト</span>
+            <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results context -->
+      <div id="sidenav-results" class="sidenav-context">
+        <div class="sidenav-header-block">
+          <button class="back-btn" onclick="App.goTo('assessment')" aria-label="診断へ戻る">← 診断へ戻る</button>
+        </div>
+        <div class="sidenav-result-summary">
+          <p class="sidenav-result-project" id="sidenav-project-name"></p>
+          <div class="sidenav-result-score" id="sidenav-result-score"></div>
+          <div class="sidenav-result-level" id="sidenav-result-level"></div>
+        </div>
+        <div class="sidenav-actions">
+          <button class="btn btn-primary btn-block" onclick="App.goTo('report')">レポートを見る</button>
+          <button class="btn btn-outline btn-block" onclick="App.copyShareURL()">⧉ URLをコピー</button>
+        </div>
+        <div class="sidenav-footer">
           <span>v0.1 · 検証前ドラフト</span>
           <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </div>
-    </aside>
 
-    <main class="assessment-main" id="assessment-main">
-      <div class="assessment-topbar">
-        <nav class="breadcrumb" aria-label="パンくずリスト">
-          <span class="breadcrumb-item">AIDD Process Next</span>
-          <span class="breadcrumb-sep">›</span>
-          <span class="breadcrumb-item">診断</span>
-          <span class="breadcrumb-sep">›</span>
-          <span class="breadcrumb-item breadcrumb-current" id="breadcrumb-category">—</span>
-        </nav>
-        <div class="topbar-progress" aria-live="polite">
-          <span id="topbar-answered">0</span> / <span id="topbar-total">50</span> 回答済み
+      <!-- Report context -->
+      <div id="sidenav-report" class="sidenav-context">
+        <div class="sidenav-header-block">
+          <button class="back-btn" onclick="App.goTo('results')" aria-label="診断結果へ戻る">← 診断結果へ戻る</button>
+        </div>
+        <div class="sidenav-result-summary">
+          <p class="sidenav-result-project" id="sidenav-report-project-name"></p>
+          <div class="sidenav-result-level" id="sidenav-report-level"></div>
+        </div>
+        <div class="sidenav-actions">
+          <button class="btn btn-outline btn-block" onclick="App.copyShareURL()">⧉ URLをコピー</button>
+          <button class="btn btn-outline btn-block" onclick="App.copyReport()">⧉ Markdownをコピー</button>
+          <button class="btn btn-outline btn-block" onclick="window.print()">⎙ 印刷 / PDF</button>
+        </div>
+        <div class="sidenav-footer">
+          <span>v0.1 · 検証前ドラフト</span>
+          <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </div>
 
-      <div class="category-header">
-        <span class="category-number" id="cat-number" aria-hidden="true">1</span>
-        <div>
-          <h2 class="category-title" id="cat-title"></h2>
-          <div class="category-progress" role="progressbar" aria-label="カテゴリ進捗">
-            <div class="progress-bar">
-              <div class="progress-fill" id="cat-progress-fill" style="width:0%"></div>
+    </nav><!-- .shell-sidenav -->
+
+    <!-- ── Screen content area ─────────────────────────────────────────────── -->
+    <div id="app">
+
+      <!-- ── WELCOME ─────────────────────────────────────────────────────── -->
+      <div id="screen-welcome" class="screen active">
+        <main class="welcome-main">
+          <div class="welcome-hero">
+            <div class="product-badge">v0.1 · 検証前ドラフト</div>
+            <h1 class="product-title">AIDD Process Next</h1>
+            <p class="product-subtitle">AI駆動開発<br>品質成熟度アセスメント</p>
+            <p class="product-desc">
+              AIを使った開発が「属人的・場当たり的」になっていないかを確認し、
+              人・AIエージェント・リポジトリ証跡の3視点から改善課題を整理します。
+            </p>
+            <div class="project-name-row">
+              <label for="project-name-input">対象プロジェクト</label>
+              <input id="project-name-input" type="text" placeholder="例：顧客ポータル刷新PJ（任意）" maxlength="100">
             </div>
-            <span class="progress-text" id="cat-progress-text"></span>
+            <div class="welcome-actions">
+              <button class="btn btn-primary" onclick="App.startFresh()">診断を開始</button>
+              <button class="btn btn-secondary" onclick="App.loadSample()">サンプルで確認</button>
+            </div>
+          </div>
+
+          <div class="welcome-info">
+            <div class="info-card">
+              <span class="info-icon" aria-hidden="true">守</span>
+              <div>
+                <strong>情報の扱い</strong>
+                <p>入力内容は外部送信されません。ブラウザ内で処理します。機密情報・認証情報・個人情報は入力しないでください。</p>
+              </div>
+            </div>
+            <div class="info-card">
+              <span class="info-icon" aria-hidden="true">暫</span>
+              <div>
+                <strong>ドラフト扱い</strong>
+                <p>本モデルは検証前です。300件規模の根拠レビュー完了までは、認証・監査基準ではなく改善のたたき台として扱います。</p>
+              </div>
+            </div>
+            <div class="info-card">
+              <span class="info-icon" aria-hidden="true">用</span>
+              <div>
+                <strong>想定ユースケース</strong>
+                <p>コンサルタントや品質担当者がチームと結果を議論し、AI駆動開発の改善ロードマップを策定する場面を想定しています。</p>
+              </div>
+            </div>
+          </div>
+
+          <footer class="page-footer">
+            <span class="page-footer-brand">AIDD Process Next</span>
+            <span class="page-footer-sep">·</span>
+            <span>v0.1 · 検証前ドラフト</span>
+            <span class="page-footer-sep">·</span>
+            <a href="https://github.com/ma-garin/AIDD-Process-Next" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <span class="page-footer-sep">·</span>
+            <span>ブラウザ完結 · データ外部送信なし</span>
+          </footer>
+        </main>
+      </div>
+
+      <!-- ── ASSESSMENT ──────────────────────────────────────────────────── -->
+      <div id="screen-assessment" class="screen">
+        <main class="assessment-main" id="assessment-main">
+          <div class="assessment-topbar">
+            <nav class="breadcrumb" aria-label="パンくずリスト">
+              <span class="breadcrumb-item">AIDD Process Next</span>
+              <span class="breadcrumb-sep">›</span>
+              <span class="breadcrumb-item">診断</span>
+              <span class="breadcrumb-sep">›</span>
+              <span class="breadcrumb-item breadcrumb-current" id="breadcrumb-category">—</span>
+            </nav>
+            <div class="topbar-progress" aria-live="polite">
+              <span id="topbar-answered">0</span> / <span id="topbar-total">50</span> 回答済み
+            </div>
+          </div>
+
+          <div class="category-header">
+            <span class="category-number" id="cat-number" aria-hidden="true">1</span>
+            <div>
+              <h2 class="category-title" id="cat-title"></h2>
+              <div class="category-progress" role="progressbar" aria-label="カテゴリ進捗">
+                <div class="progress-bar">
+                  <div class="progress-fill" id="cat-progress-fill" style="width:0%"></div>
+                </div>
+                <span class="progress-text" id="cat-progress-text"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="question-card" id="question-card">
+            <div class="question-meta">
+              <span class="question-number" id="q-number"></span>
+              <span class="question-target-badge" id="q-target"></span>
+            </div>
+            <h3 class="question-text" id="q-text"></h3>
+            <fieldset class="choices" id="q-choices" aria-label="回答選択肢">
+              <legend class="sr-only">成熟度レベルを選択</legend>
+            </fieldset>
+            <div class="question-na">
+              <label class="na-label">
+                <input type="checkbox" id="q-na">
+                このプロジェクトでは対象外
+              </label>
+            </div>
+            <div class="risk-preview" id="risk-preview" role="alert" aria-live="polite"></div>
+          </div>
+
+          <div class="question-nav">
+            <button class="btn btn-outline" id="prev-btn" onclick="App.prevQuestion()">← 前へ</button>
+            <button class="btn btn-primary" id="next-btn" onclick="App.nextQuestion()">次へ →</button>
+          </div>
+        </main>
+      </div>
+
+      <!-- ── RESULTS ──────────────────────────────────────────────────────── -->
+      <div id="screen-results" class="screen">
+        <div class="results-layout">
+          <div class="results-main">
+            <div class="maturity-card" id="maturity-card">
+              <div class="maturity-score" id="maturity-score"></div>
+              <div class="maturity-level" id="maturity-level"></div>
+              <div class="maturity-desc" id="maturity-desc"></div>
+            </div>
+            <div class="chart-card">
+              <h3>カテゴリ別スコア</h3>
+              <div class="chart-wrapper">
+                <div id="radar-chart" role="img" aria-label="カテゴリ別スコアのレーダーチャート"></div>
+              </div>
+            </div>
+          </div>
+          <div class="results-side">
+            <div class="risks-card">
+              <h3>優先リスク</h3>
+              <div id="risks-list"></div>
+            </div>
+            <div class="issues-card">
+              <h3>改善Issue案</h3>
+              <div id="issues-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="category-scores-grid" id="category-scores-grid"></div>
+
+        <!-- Executive Summary (印刷時のみ表示) -->
+        <div class="exec-summary-print" id="exec-summary-print" aria-hidden="true">
+          <header class="es-header">
+            <div class="es-brand"><span class="es-brand-mark">A</span> AIDD Process Next</div>
+            <div class="es-meta">
+              <span id="es-project-name"></span>
+              <span>診断日: <span id="es-date"></span></span>
+            </div>
+          </header>
+          <div class="es-score-row">
+            <div class="es-score-block">
+              <div class="es-score-label">総合スコア</div>
+              <div class="es-score-value" id="es-total-score"></div>
+            </div>
+            <div class="es-level-block">
+              <div class="es-score-label">成熟度</div>
+              <div class="es-level-value" id="es-level"></div>
+              <p class="es-level-desc" id="es-level-desc"></p>
+            </div>
+          </div>
+          <div class="es-section">
+            <h2 class="es-section-title">優先リスク（上位5件）</h2>
+            <div id="es-risks-list"></div>
+          </div>
+          <div class="es-section">
+            <h2 class="es-section-title">推奨アクション（上位3件）</h2>
+            <ol id="es-actions-list" class="es-actions-list"></ol>
+          </div>
+          <footer class="es-footer">
+            <p>本診断結果は改善活動のたたき台として使用するものであり、セキュリティ認証・監査基準の代替ではありません。</p>
+            <p>AIDD Process Next v0.1 · 検証前ドラフト · スコアリングモデルは300件規模の根拠レビュー完了前の暫定値です。</p>
+          </footer>
+        </div>
+      </div>
+
+      <!-- ── REPORT ────────────────────────────────────────────────────────── -->
+      <div id="screen-report" class="screen">
+        <div class="report-layout">
+          <div class="report-main">
+            <div class="report-section">
+              <h3>Markdownレポート — <span id="report-project-name"></span> <small id="report-score-summary"></small></h3>
+              <div class="report-copy-bar">
+                <button class="btn-icon-copy" onclick="App.copyReport()">⧉ コピー</button>
+              </div>
+              <pre id="report-content" class="report-pre" aria-label="Markdownレポート本文"></pre>
+            </div>
+            <div class="disclaimer-block">
+              <p><strong>免責事項</strong>：本診断結果は改善活動の起点として使用するものです。スコアリングモデルは300件規模の根拠レビュー完了前の検証前ドラフト（v0.1）であり、セキュリティ認証・ISO審査・監査基準の代替としては使用できません。診断内容は外部送信されません。</p>
+            </div>
+          </div>
+
+          <div class="report-side">
+            <div class="selfcheck-section">
+              <h3>AIエージェント自己点検プロンプト</h3>
+              <p class="selfcheck-desc">Claude Code、Codex、Cursorなどのコーディングエージェントへ貼り付けて使います。</p>
+              <div class="selfcheck-tabs" id="selfcheck-tabs" role="tablist" aria-label="自己点検フェーズ">
+                <button class="tab-btn active" data-tab="pre-impl"  role="tab" aria-selected="true">実装前</button>
+                <button class="tab-btn"        data-tab="pre-pr"    role="tab" aria-selected="false">PR前</button>
+                <button class="tab-btn"        data-tab="pre-merge" role="tab" aria-selected="false">マージ前</button>
+              </div>
+              <div class="selfcheck-prompt-container">
+                <button class="btn-icon-copy selfcheck-copy" onclick="App.copySelfCheck()" aria-label="プロンプトをコピー">⧉ コピー</button>
+                <pre id="selfcheck-prompt" class="selfcheck-pre" aria-label="AI自己点検プロンプト"></pre>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="question-card" id="question-card">
-        <div class="question-meta">
-          <span class="question-number" id="q-number"></span>
-          <span class="question-target-badge" id="q-target"></span>
-        </div>
-        <h3 class="question-text" id="q-text"></h3>
-        <fieldset class="choices" id="q-choices" aria-label="回答選択肢">
-          <legend class="sr-only">成熟度レベルを選択</legend>
-        </fieldset>
-        <div class="question-na">
-          <label class="na-label">
-            <input type="checkbox" id="q-na">
-            このプロジェクトでは対象外
-          </label>
-        </div>
-        <div class="risk-preview" id="risk-preview" role="alert" aria-live="polite"></div>
-      </div>
-
-      <div class="question-nav">
-        <button class="btn btn-outline" id="prev-btn" onclick="App.prevQuestion()">← 前へ</button>
-        <button class="btn btn-primary" id="next-btn" onclick="App.nextQuestion()">次へ →</button>
-      </div>
-    </main>
-  </div>
-
-  <!-- ── RESULTS ─────────────────────────────────────────────────────────── -->
-  <div id="screen-results" class="screen">
-    <header class="app-topbar">
-      <div class="app-topbar-left">
-        <div class="app-topbar-brand">
-          <div class="sidebar-brand-mark" aria-hidden="true">A</div>
-          <span class="sidebar-brand-text">AIDD Process Next</span>
-        </div>
-        <nav class="breadcrumb" aria-label="パンくずリスト">
-          <button class="breadcrumb-item breadcrumb-link back-btn" onclick="App.goTo('assessment')">診断</button>
-          <span class="breadcrumb-sep">›</span>
-          <span class="breadcrumb-item breadcrumb-current">診断結果</span>
-        </nav>
-      </div>
-      <div class="app-topbar-actions">
-        <button class="btn btn-outline" onclick="App.copyShareURL()">⧉ URLをコピー</button>
-        <span class="copy-feedback" id="share-url-feedback" aria-live="polite"></span>
-        <button class="btn btn-primary" onclick="App.goTo('report')">レポートを見る</button>
-      </div>
-    </header>
-
-    <div class="results-layout">
-      <div class="results-main">
-        <div class="maturity-card" id="maturity-card">
-          <div class="maturity-score" id="maturity-score"></div>
-          <div class="maturity-level" id="maturity-level"></div>
-          <div class="maturity-desc" id="maturity-desc"></div>
-        </div>
-        <div class="chart-card">
-          <h3>カテゴリ別スコア</h3>
-          <div class="chart-wrapper">
-            <div id="radar-chart" role="img" aria-label="カテゴリ別スコアのレーダーチャート"></div>
-          </div>
-        </div>
-      </div>
-      <div class="results-side">
-        <div class="risks-card">
-          <h3>優先リスク</h3>
-          <div id="risks-list"></div>
-        </div>
-        <div class="issues-card">
-          <h3>改善Issue案</h3>
-          <div id="issues-list"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="category-scores-grid" id="category-scores-grid"></div>
-
-    <!-- ── EXECUTIVE SUMMARY (印刷時のみ表示) ──────────────────────────── -->
-    <div class="exec-summary-print" id="exec-summary-print" aria-hidden="true">
-      <header class="es-header">
-        <div class="es-brand"><span class="es-brand-mark">A</span> AIDD Process Next</div>
-        <div class="es-meta">
-          <span id="es-project-name"></span>
-          <span>診断日: <span id="es-date"></span></span>
-        </div>
-      </header>
-      <div class="es-score-row">
-        <div class="es-score-block">
-          <div class="es-score-label">総合スコア</div>
-          <div class="es-score-value" id="es-total-score"></div>
-        </div>
-        <div class="es-level-block">
-          <div class="es-score-label">成熟度</div>
-          <div class="es-level-value" id="es-level"></div>
-          <p class="es-level-desc" id="es-level-desc"></p>
-        </div>
-      </div>
-      <div class="es-section">
-        <h2 class="es-section-title">優先リスク（上位5件）</h2>
-        <div id="es-risks-list"></div>
-      </div>
-      <div class="es-section">
-        <h2 class="es-section-title">推奨アクション（上位3件）</h2>
-        <ol id="es-actions-list" class="es-actions-list"></ol>
-      </div>
-      <footer class="es-footer">
-        <p>本診断結果は改善活動のたたき台として使用するものであり、セキュリティ認証・監査基準の代替ではありません。</p>
-        <p>AIDD Process Next v0.1 · 検証前ドラフト · スコアリングモデルは300件規模の根拠レビュー完了前の暫定値です。</p>
-      </footer>
-    </div>
-  </div>
-
-  <!-- ── REPORT ──────────────────────────────────────────────────────────── -->
-  <div id="screen-report" class="screen">
-    <header class="app-topbar">
-      <div class="app-topbar-left">
-        <div class="app-topbar-brand">
-          <div class="sidebar-brand-mark" aria-hidden="true">A</div>
-          <span class="sidebar-brand-text">AIDD Process Next</span>
-        </div>
-        <nav class="breadcrumb" aria-label="パンくずリスト">
-          <button class="breadcrumb-item breadcrumb-link back-btn" onclick="App.goTo('assessment')">診断</button>
-          <span class="breadcrumb-sep">›</span>
-          <button class="breadcrumb-item breadcrumb-link back-btn" onclick="App.goTo('results')">診断結果</button>
-          <span class="breadcrumb-sep">›</span>
-          <span class="breadcrumb-item breadcrumb-current">レポート</span>
-        </nav>
-      </div>
-      <div class="app-topbar-actions">
-        <button class="btn btn-outline" onclick="App.copyShareURL()">⧉ URLをコピー</button>
-        <button class="btn btn-outline" onclick="App.copyReport()">⧉ Markdownをコピー</button>
-        <span class="copy-feedback" id="report-copy-feedback" aria-live="polite"></span>
-        <button class="btn btn-outline" onclick="window.print()">⎙ 印刷 / PDF</button>
-      </div>
-    </header>
-
-    <div class="report-layout">
-      <div class="report-main">
-        <div class="report-section">
-          <h3>Markdownレポート — <span id="report-project-name"></span> <small id="report-score-summary"></small></h3>
-          <div class="report-copy-bar">
-            <button class="btn-icon-copy" onclick="App.copyReport()">⧉ コピー</button>
-          </div>
-          <pre id="report-content" class="report-pre" aria-label="Markdownレポート本文"></pre>
-        </div>
-        <div class="disclaimer-block">
-          <p><strong>免責事項</strong>：本診断結果は改善活動の起点として使用するものです。スコアリングモデルは300件規模の根拠レビュー完了前の検証前ドラフト（v0.1）であり、セキュリティ認証・ISO審査・監査基準の代替としては使用できません。診断内容は外部送信されません。</p>
-        </div>
-      </div>
-
-      <div class="report-side">
-        <div class="selfcheck-section">
-          <h3>AIエージェント自己点検プロンプト</h3>
-          <p class="selfcheck-desc">Claude Code、Codex、Cursorなどのコーディングエージェントへ貼り付けて使います。</p>
-          <div class="selfcheck-tabs" id="selfcheck-tabs" role="tablist" aria-label="自己点検フェーズ">
-            <button class="tab-btn active" data-tab="pre-impl"  role="tab" aria-selected="true">実装前</button>
-            <button class="tab-btn"        data-tab="pre-pr"    role="tab" aria-selected="false">PR前</button>
-            <button class="tab-btn"        data-tab="pre-merge" role="tab" aria-selected="false">マージ前</button>
-          </div>
-          <div class="selfcheck-prompt-container">
-            <button class="btn-icon-copy selfcheck-copy" onclick="App.copySelfCheck()" aria-label="プロンプトをコピー">⧉ コピー</button>
-            <span class="copy-feedback" id="selfcheck-copy-feedback" aria-live="polite"></span>
-            <pre id="selfcheck-prompt" class="selfcheck-pre" aria-label="AI自己点検プロンプト"></pre>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div><!-- #app -->
+    </div><!-- #app -->
+  </div><!-- .shell-body -->
+</div><!-- #shell -->
 
 <script src="data/questions.js"></script>
 <script src="data/sample-answers.js"></script>

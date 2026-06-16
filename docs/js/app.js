@@ -104,18 +104,18 @@ const App = (function () {
 
   function copyReport() {
     const text = generateMarkdownReport(state.results);
-    copyToClipboard(text, 'report-copy-feedback');
+    copyToClipboard(text);
   }
 
   function copySelfCheck() {
     const text = generateSelfCheckPrompt(state.selfCheckTab, state.results);
-    copyToClipboard(text, 'selfcheck-copy-feedback');
+    copyToClipboard(text);
   }
 
   function copyShareURL() {
     const search = encodeStateToURL(state.answers, state.projectName);
     const url = window.location.origin + window.location.pathname + search;
-    copyToClipboard(url, 'share-url-feedback');
+    copyToClipboard(url);
   }
 
   function dismissURLBanner() {
@@ -130,16 +130,17 @@ const App = (function () {
     return QUESTIONS.filter(q => q.categoryId === cat.id);
   }
 
-  function copyToClipboard(text, feedbackId) {
-    navigator.clipboard.writeText(text).then(() => {
-      const el = document.getElementById(feedbackId);
-      if (!el) return;
-      el.textContent = 'コピーしました';
-      setTimeout(() => { el.textContent = ''; }, 2000);
-    }).catch(() => {
-      const el = document.getElementById(feedbackId);
-      if (el) el.textContent = 'コピーに失敗しました。手動で選択してコピーしてください。';
-    });
+  function copyToClipboard(text) {
+    const toast = document.getElementById('copy-toast');
+    function showToast(msg, duration) {
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), duration);
+    }
+    navigator.clipboard.writeText(text)
+      .then(() => showToast('コピーしました', 2000))
+      .catch(() => showToast('コピーに失敗しました。手動で選択してコピーしてください。', 3000));
   }
 
   // ── Rendering ──────────────────────────────────────────────────────────────
@@ -147,6 +148,8 @@ const App = (function () {
   function render(screenChanged) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + state.screen)?.classList.add('active');
+    document.querySelectorAll('.sidenav-context').forEach(s => s.classList.remove('active'));
+    document.getElementById('sidenav-' + state.screen)?.classList.add('active');
 
     switch (state.screen) {
       case 'welcome':    renderWelcome(); break;
@@ -283,6 +286,10 @@ const App = (function () {
   function renderResults() {
     const r = state.results;
     if (!r) return;
+
+    setText('sidenav-project-name', r.projectName || '（未設定）');
+    setText('sidenav-result-score', r.totalScore + '/100');
+    setText('sidenav-result-level', r.level.icon + ' ' + r.level.name);
 
     const maturityCard = document.getElementById('maturity-card');
     if (maturityCard) maturityCard.className = 'maturity-card ' + r.level.cssClass;
@@ -460,6 +467,10 @@ const App = (function () {
   function renderReport() {
     const r = state.results;
     if (!r) return;
+
+    setText('sidenav-report-project-name', r.projectName || '（未設定）');
+    setText('sidenav-report-level', r.level.icon + ' ' + r.level.name);
+
     const reportEl = document.getElementById('report-content');
     if (reportEl) reportEl.textContent = generateMarkdownReport(r);
     renderSelfCheckPrompt();
